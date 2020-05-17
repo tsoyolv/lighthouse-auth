@@ -1,0 +1,189 @@
+To start:
+1. Download Java 14 tar file, unpack it
+2. Download Gradle last version tar file, unpack it
+3. Download Idea Ultimate, unpack it
+Add all /bin paths to etc/enviroment $PATH variable
+cd ~
+cd ../
+cd ../
+ls -a
+cd etc
+sudo gedit enviroment # change PATH file, add to PATH ":/{path-to-bin}"
+Reboot
+
+Create Gradle application: https://guides.gradle.org/building-spring-boot-2-projects-with-gradle/
+gradle init --type java-application
+
+Building and running the Spring Boot application
+To build the executable jar you can execute the following command:
+
+$ ./gradlew bootJar
+The executable jar is located in the build/libs directory and you can run it by executing the following command:
+
+$ java -jar build/libs/gradle-spring-boot-project.jar
+Another way to run the application is by executing the following Gradle command:
+
+$ ./gradlew bootRun
+
+build.gradle
+1. buildscript
+2. plugins
+3. repositories
+4. dependencies
+5. apply plugins
+6. variables and tasks
+
+https://start.spring.io/
+
+sudo apt-get remove docker docker-engine docker.io containerd runc
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+
+ sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+docker run hello-world
+
+docker pull postgres
+docker run -d -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=password postgres
+sudo apt-get install postgresql-client
+sudo apt install postgresql-client-common
+psql -h localhost -p 5432 -U postgres -W
+
+optional:
+docker exec -it my-postgres bash
+psql -U postgres
+CREATE DATABASE mytestdb;
+\q
+
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux
+sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2
+sudo apt install curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+kubectl version --client
+
+install VIRTUAL_BOX
+
+UEFI Secure Boot requires additional configuration to work with third-party drivers.
+The system will assist you in configuring UEFI Secure Boot. To permit the use of third-party drivers, a new Machine-Owner Key (MOK) has been generated. This key now needs to be enrolled in your system's firmware.
+To ensure that this change is being made by you as an authorized user, and not by an attacker, you must choose a password now and then confirm the change after reboot using the same password, in both the "Enroll MOK" and "Change Secure Boot state" menus that will be presented to you when this system reboots.
+If you proceed but do not confirm the password upon reboot, Ubuntu will still be able to boot on your system but any hardware that requires third-party drivers to work correctly may not be usable.
+
+If you’re not installing via a package, you can download a stand-alone binary and use that.
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+  && chmod +x minikube
+Here’s an easy way to add the Minikube executable to your path:
+sudo mkdir -p /usr/local/bin/
+sudo install minikube /usr/local/bin/
+
+❌  [VBOX_DRV_NOT_LOADED] Failed to start virtualbox VM. "minikube start" may fix it. creating host: create: precreate: We support Virtualbox starting with version 5. Your VirtualBox install is "WARNING: The vboxdrv kernel module is not loaded. Either there is no module\n         available for the current kernel (4.15.0-99-generic) or it failed to\n         load. Please recompile the kernel module and install it by\n\n           sudo /sbin/vboxconfig\n\n         You will not be able to start VMs until this problem is fixed.\n6.0.20r137117". Please upgrade at https://www.virtualbox.org
+💡  Suggestion: Reinstall VirtualBox and reboot. Alternatively, try the kvm2 driver: https://minikube.sigs.k8s.io/docs/reference/drivers/kvm2/
+⁉️   Related issues:
+    ▪ https://github.com/kubernetes/minikube/issues/4043
+    ▪ https://github.com/kubernetes/minikube/issues/4711
+
+Disable Secure Boot in your BIOS settings
+
+minikube start --driver=<driver_name>
+Once minikube start finishes, run the command below to check the status of the cluster:
+
+minikube status
+If your cluster is running, the output from minikube status should be similar to:
+
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+After you have confirmed whether Minikube is working with your chosen hypervisor, you can continue to use Minikube or you can stop your cluster. To stop your cluster, run:
+
+minikube stop
+Clean up local state
+If you have previously installed Minikube, and run:
+
+minikube start
+and minikube start returned an error:
+
+machine does not exist
+then you need to clear minikube’s local state:
+
+minikube delete
+
+
+minikube start
+kubectl create namespace lhs-ns
+kubectl config set-context --current --namespace=lhs-ns
+
+update shared folder in virtualbox settings for minikube of kubernetes:
+/home/tsoyolv/programs/virtualbox/shared
+
+kubectl create -f postgres-configmap.yaml
+kubectl create -f postgres-storage.yaml
+In Kubernetes 1.16 some apis have been changed.
+
+You can check which apis support current Kubernetes object using
+
+$ kubectl api-resources | grep deployment
+deployments                       deploy       apps                           true         Deployment
+This means that only apiVersion with apps is correct for Deployments (extensions is not supporting Deployment). The same situation with StatefulSet.
+
+kubectl create -f postgres-deployment.yaml
+kubectl create -f postgres-service.yaml
+
+curl ifconfig.me
+
+minikube service postgres --url
+>> http://192.168.99.101:30566
+psql -h 192.168.99.101 -U postgresadmin --password -p 30566 postgresdb
+
+kubectl get service
+kubectl get deployment
+
+docker run -p 80:8081 lighthouse-login-service
+
+https://www.baeldung.com/properties-with-spring
+
+1. Экспортировать в локальный клиент конфигурационный файл вашего кластера с расширением *.yml (файл должен автоматически скачаться на ваш компьютер при создании кластера, см. статью), командой
+export KUBECONFIG=<путь к файлу>
+2. Запустить proxy-сервер (в локальном клиенте Kubectl) для безопасного подключения к кластеру командой
+kubectl proxy
+3. Копируем secret привилегированного пользователя
+4. Открываем в браузере http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/. Вводим в поле Token пароль (secret), полученный на предыдущем шаге.
+Параметры Docker registry	Значение
+url
+89.208.196.49:5000
+username
+registry
+password
+••••••••••••••••••••
+Для доступа к docker выполните команду:
+> docker login 89.208.196.49:5000 --username registry --password <password>
+Error response from daemon: Get https://89.208.196.49:5000/v2/: x509: certificate signed by unknown authority
+> openssl s_client -showcerts -connect 89.208.196.49:5000 < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ca.crt
+> sudo cp ca.crt /usr/local/share/ca-certificates/
+> sudo update-ca-certificates
+> service docker restart
+> docker login 89.208.196.49:5000 --username registry --password 3Olg0ceZkra40cN5
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /home/tsoyolv/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+> kubectl cluster-info
+> kubectl config view
+
+> docker image ls
+> docker tag 84937a378da5 89.208.196.49:5000/lighthouse-login-service
+> docker push 89.208.196.49:5000/lighthouse-login-service
+go to browser: https://89.208.196.49:5000/v2/_catalog

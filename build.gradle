@@ -1,0 +1,53 @@
+// --------------------------------------- FROM root project start -----------------------------------------------------
+/*plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version "${springDMVersion}"
+    id 'org.springframework.boot' version "${springBootVersion}"
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // FROM root project
+    implementation 'org.springframework.boot:spring-boot-starter-web' // FROM root project
+    testImplementation('org.springframework.boot:spring-boot-starter-test') { // FROM root project
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}*/
+// --------------------------------------- FROM root project end -------------------------------------------------------
+
+dependencies {
+    runtimeOnly 'com.h2database:h2'
+    implementation 'org.flywaydb:flyway-core'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs= ["src/main/java"]
+        }
+        resources {
+            srcDirs= ["src/main/resources"]
+        }
+    }
+    test {
+        java {
+            srcDirs= ["src/test/java"]
+        }
+        resources {
+            srcDirs= ["src/test/resources"]
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
