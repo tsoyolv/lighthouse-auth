@@ -187,3 +187,4 @@ Login Succeeded
 > docker tag 84937a378da5 89.208.196.49:5000/lighthouse-login-service
 > docker push 89.208.196.49:5000/lighthouse-login-service
 go to browser: https://89.208.196.49:5000/v2/_catalog
+https://89.208.196.49:5000/v2/lighthouse-auth/tags/list
