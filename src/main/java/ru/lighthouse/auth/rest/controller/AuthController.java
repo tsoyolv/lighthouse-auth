@@ -11,6 +11,9 @@ import static ru.lighthouse.auth.rest.controller.AuthUtils.isValidPhoneNumber;
 @RestController
 public class AuthController {
 
+    private static final String AUTH_PATH = "";
+    private static final String OTP_PATH = "";
+
     private final SMSMessageService smsMessageService;
 
     public AuthController(SMSMessageService smsMessageService) {
