@@ -25,8 +25,13 @@ public class User {
         this.authorities = authorities;
     }
 
+    public User(String phonenumber, String token) {
+        this.phonenumber = phonenumber;
+        this.token = token;
+    }
+
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="NAME", length=50, nullable=false, unique=false)
