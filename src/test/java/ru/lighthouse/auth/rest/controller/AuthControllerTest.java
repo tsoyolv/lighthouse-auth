@@ -23,7 +23,7 @@ public class AuthControllerTest {
     @Test
     public void testAuthorizedUser() throws Exception {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("X-AUTH-TOKEN", "tsoyolv");
+        httpHeaders.add("Authorization", "Basic ecf987fa-ca08-4f43-9455-d2fca577cb01");
         MockHttpServletRequestBuilder requestBuilder = get("/api").headers(httpHeaders);
         mvc.perform(requestBuilder)
                 .andExpect(status().isOk())
@@ -33,15 +33,15 @@ public class AuthControllerTest {
     @Test
     public void testUnauthorizedUser() throws Exception {
         mvc.perform(get("/api"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void testAuthorizedWithWrongHeaderUser() throws Exception {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("X-AUTH-TOKEN", "wrongheader");
+        httpHeaders.add("Authorization", "Basic wrongheader");
         MockHttpServletRequestBuilder requestBuilder = get("/api").headers(httpHeaders);
         mvc.perform(requestBuilder)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }

@@ -16,6 +16,9 @@ import java.util.List;
 @Table(name="USER")
 public class User {
 
+    public User() {
+    }
+
     public User(String name, String phonenumber, List<GrantedAuthority> authorities) {
         this.name = name;
         this.phonenumber = phonenumber;

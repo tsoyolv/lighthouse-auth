@@ -18,7 +18,7 @@ public class DefaultUserService {
     }
 
     public String auth(String username, String password) {
-        Optional<User> customer = userRepository.auth(username);
+        Optional<User> customer = userRepository.findByPhonenumber(username);
         if(customer.isPresent()){
             String token = UUID.randomUUID().toString();
             User custom = customer.get();
@@ -37,5 +37,10 @@ public class DefaultUserService {
             return Optional.of(userD);
         }
         return  Optional.empty();
+    }
+
+    public User findById(Long id) {
+        Optional<User> customer= userRepository.findById(id);
+        return customer.orElse(null);
     }
 }

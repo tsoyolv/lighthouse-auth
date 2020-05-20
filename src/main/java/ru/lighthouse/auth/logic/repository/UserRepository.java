@@ -10,8 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-    @Query(value = "SELECT u FROM User u where u.phonenumber = ?1")
-    Optional<User> auth(String username);
+    Optional<User> findByPhonenumber(String username);
 
     Optional<User> findByToken(String token);
 }

@@ -1,50 +1,79 @@
 package ru.lighthouse.auth.security;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(preAuthenticatedAuthenticationProvider());
+
+    private static final RequestMatcher PROTECTED_URLS = new OrRequestMatcher(
+            new AntPathRequestMatcher("/api/**")
+    );
+
+    AuthenticationProvider provider;
+
+    public SecurityConfiguration(final AuthenticationProvider authenticationProvider) {
+        super();
+        this.provider=authenticationProvider;
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.addFilter(requestHeaderAuthenticationFilter())
-                .antMatcher("/api/**").authorizeRequests().anyRequest().authenticated();
+    protected void configure(final AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(provider);
     }
 
-    @Bean
-    public RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter() throws Exception {
-        RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter = new RequestHeaderAuthenticationFilter();
-        requestHeaderAuthenticationFilter.setPrincipalRequestHeader("X-AUTH-TOKEN");
-        requestHeaderAuthenticationFilter.setAuthenticationManager(authenticationManager());
-        requestHeaderAuthenticationFilter.setExceptionIfHeaderMissing(false);
-        return requestHeaderAuthenticationFilter;
-    }
-
-    @Bean
-    public PreAuthenticatedAuthenticationProvider preAuthenticatedAuthenticationProvider() {
-        PreAuthenticatedAuthenticationProvider preAuthenticatedAuthenticationProvider = new PreAuthenticatedAuthenticationProvider();
-        preAuthenticatedAuthenticationProvider.setPreAuthenticatedUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService()));
-        return preAuthenticatedAuthenticationProvider;
-    }
-
-    @Bean
     @Override
-    public UserDetailsService userDetailsService() {
-        return new AuthUserDetailsService();
+    public void configure(final WebSecurity webSecurity) {
+        webSecurity.ignoring().antMatchers("/token/**", "/h2/**");
+    }
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .exceptionHandling()
+                .and()
+                .authenticationProvider(provider)
+                .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
+                .authorizeRequests()
+                .requestMatchers(PROTECTED_URLS)
+                .authenticated()
+                .and()
+                .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .logout().disable();
+    }
+
+    @Bean
+    AuthenticationFilter authenticationFilter() throws Exception {
+        final AuthenticationFilter filter = new AuthenticationFilter(PROTECTED_URLS);
+        filter.setAuthenticationManager(authenticationManager());
+        //filter.setAuthenticationSuccessHandler(successHandler());
+        return filter;
+    }
+
+    @Bean
+    AuthenticationEntryPoint forbiddenEntryPoint() {
+        return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
     }
 }
