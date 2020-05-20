@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.rest.controller;
+package ru.lighthouse.auth.message;
 
 import java.util.regex.Pattern;
 

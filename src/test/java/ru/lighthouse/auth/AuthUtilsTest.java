@@ -1,7 +1,7 @@
 package ru.lighthouse.auth;
 
 import org.junit.jupiter.api.Test;
-import ru.lighthouse.auth.rest.controller.AuthUtils;
+import ru.lighthouse.auth.message.AuthUtils;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

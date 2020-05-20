@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.service;
+package ru.lighthouse.auth.message;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -1,12 +1,13 @@
 package ru.lighthouse.auth.rest.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.lighthouse.auth.service.SMSMessageService;
+import ru.lighthouse.auth.message.SMSMessageService;
 
-import static ru.lighthouse.auth.rest.controller.AuthUtils.isValidPhoneNumber;
+import static ru.lighthouse.auth.message.AuthUtils.isValidPhoneNumber;
 
 @RestController
 public class AuthController {
@@ -18,6 +19,11 @@ public class AuthController {
 
     public AuthController(SMSMessageService smsMessageService) {
         this.smsMessageService = smsMessageService;
+    }
+
+    @GetMapping("/api")
+    public String api() {
+        return "Api";
     }
 
     @PostMapping("/otp/request")
