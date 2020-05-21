@@ -60,6 +60,7 @@ public class SMSMessageService {
         if (!smsServiceEnabled) {
             if (smscDebug) {
                 System.out.println("SMS сервис отключен!");
+                System.out.println(message);
             }
             return null;
         }

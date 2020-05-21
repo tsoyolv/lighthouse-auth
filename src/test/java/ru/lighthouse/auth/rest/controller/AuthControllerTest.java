@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import ru.lighthouse.auth.App;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,8 +23,15 @@ public class AuthControllerTest {
 
     @Test
     public void testAuthorizedUser() throws Exception {
+        String defaultPhone = "79779873676";
+        mvc.perform(post("/otp").param("phoneNumber", defaultPhone))
+                .andExpect(status().isOk());
+        String defaultOtp = "1234";
+        String token = mvc.perform(post("/login").param("phoneNumber", defaultPhone).param("otp", defaultOtp))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Basic ecf987fa-ca08-4f43-9455-d2fca577cb01");
+        httpHeaders.add("Authorization", "Basic " + token);
         MockHttpServletRequestBuilder requestBuilder = get("/api").headers(httpHeaders);
         mvc.perform(requestBuilder)
                 .andExpect(status().isOk())

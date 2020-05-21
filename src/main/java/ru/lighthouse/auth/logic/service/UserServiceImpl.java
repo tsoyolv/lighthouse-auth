@@ -35,4 +35,9 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByToken(String token) {
         return userRepository.findByToken(token);
     }
+
+    @Override
+    public Optional<User> findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhonenumber(phoneNumber);
+    }
 }

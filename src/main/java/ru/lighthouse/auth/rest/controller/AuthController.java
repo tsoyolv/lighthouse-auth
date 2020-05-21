@@ -46,8 +46,10 @@ public class AuthController {
         boolean valid = otpService.checkOtp(phoneNumber, otp);
         if (valid) {
             String token = userService.createToken(phoneNumber, otp);
-            User newUser = new User(phoneNumber, token);
-            userService.saveUser(newUser);
+            Optional<User> userOptional = userService.findByPhoneNumber(phoneNumber);
+            User user = userOptional.orElse(new User(phoneNumber, token));
+            user.setToken(token);
+            userService.saveUser(user);
             String tokenBase64 = Base64.getEncoder().encodeToString(token.getBytes());
             return new ResponseEntity<>(tokenBase64, HttpStatus.OK);
         }

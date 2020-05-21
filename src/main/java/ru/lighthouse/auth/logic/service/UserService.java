@@ -9,4 +9,5 @@ public interface UserService {
     void saveUser(User user);
     Optional<User> findById(Long id);
     Optional<User> findByToken(String token);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 }
