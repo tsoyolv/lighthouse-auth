@@ -13,7 +13,7 @@ import ru.lighthouse.auth.logic.service.UserService;
 import java.util.Base64;
 import java.util.Optional;
 
-@Component
+//@Component
 public class AuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     private final UserService userService;
