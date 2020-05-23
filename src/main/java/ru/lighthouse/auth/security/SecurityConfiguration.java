@@ -18,12 +18,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-@Configuration
+/*@Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled=true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+@EnableGlobalMethodSecurity(prePostEnabled=true)*/
+public class SecurityConfiguration {//extends WebSecurityConfigurerAdapter {
 
-
+/*
     private static final RequestMatcher PROTECTED_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/api/**")
     );
@@ -75,5 +75,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     AuthenticationEntryPoint forbiddenEntryPoint() {
         return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
-    }
+    }*/
 }

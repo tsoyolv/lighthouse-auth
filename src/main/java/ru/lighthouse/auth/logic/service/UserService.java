@@ -10,4 +10,5 @@ public interface UserService {
     Optional<User> findById(Long id);
     Optional<User> findByToken(String token);
     Optional<User> findByPhoneNumber(String phoneNumber);
+    void authenticate(String phoneNumber, String token);
 }
