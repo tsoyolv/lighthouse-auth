@@ -1,10 +1,8 @@
 package ru.lighthouse.auth.logic.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.lighthouse.auth.logic.entity.User;
 import ru.lighthouse.auth.logic.repository.UserRepository;
-import ru.lighthouse.auth.security.news.SecurityService;
 
 import java.util.Optional;
 
@@ -12,13 +10,9 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final SecurityService securityService;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, SecurityService securityService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.securityService = securityService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -51,8 +45,7 @@ public class UserServiceImpl implements UserService {
     public void authenticate(String phoneNumber, String token) {
         Optional<User> userOptional = findByPhoneNumber(phoneNumber);
         User user = userOptional.orElse(new User(phoneNumber, token));
-        user.setToken(passwordEncoder.encode(token));
+        user.setToken(token);
         saveUser(user);
-        securityService.authenticate(phoneNumber, token);
     }
 }
