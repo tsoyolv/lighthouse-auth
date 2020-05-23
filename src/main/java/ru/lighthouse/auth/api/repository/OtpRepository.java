@@ -1,8 +1,8 @@
-package ru.lighthouse.auth.logic.repository;
+package ru.lighthouse.auth.api.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.lighthouse.auth.logic.entity.Otp;
+import ru.lighthouse.auth.api.entity.Otp;
 
 import java.util.Optional;
 

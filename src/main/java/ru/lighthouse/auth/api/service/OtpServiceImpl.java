@@ -1,14 +1,13 @@
-package ru.lighthouse.auth.logic.service;
+package ru.lighthouse.auth.api.service;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.lighthouse.auth.logic.entity.Otp;
-import ru.lighthouse.auth.logic.repository.OtpRepository;
+import ru.lighthouse.auth.api.entity.Otp;
+import ru.lighthouse.auth.api.repository.OtpRepository;
 import ru.lighthouse.auth.message.SMSMessageService;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
@@ -16,7 +15,6 @@ import java.util.Optional;
 public class OtpServiceImpl implements OtpService {
 
     private final SMSMessageService smsMessageService;
-
     private final OtpRepository otpRepository;
 
     public OtpServiceImpl(SMSMessageService smsMessageService, OtpRepository otpRepository) {
@@ -45,13 +43,8 @@ public class OtpServiceImpl implements OtpService {
         smsMessageService.sendSmsImmediately(phoneNumber, createMessage(password), 0);
     }
 
-    private String createMessage(String password) {
-        //return String.format(smsLoginPattern, password); todo
-        return String.format("Ваш пароль от LightHouse: %s. С праздничком!", password);
-    }
-
     @Override
-    public boolean checkOtp(String phoneNumber, String password) {
+    public boolean isOtpValid(String phoneNumber, String password) {
         String phoneNumberOtp = phoneNumber + password;
         Optional<Otp> otpOptional = otpRepository.findByPhoneNumberOtp(phoneNumberOtp);
         if (otpOptional.isPresent()) {
@@ -65,11 +58,17 @@ public class OtpServiceImpl implements OtpService {
         return false;
     }
 
+    @Override
+    public boolean isOtpNotValid(String phoneNumber, String otp) {
+        return !isOtpValid(phoneNumber, otp);
+    }
+
+    private String createMessage(String password) {
+        //return String.format(smsLoginPattern, password); todo
+        return String.format("Ваш пароль от LightHouse: %s. С праздничком!", password);
+    }
+
     private String generatePassword(String phoneNumber) {
-        if (defaultPasswordEnabled) {
-            return defaultPassword;
-        } else {
-            return String.valueOf(RandomUtils.nextInt(0000, 10000));
-        }
+        return defaultPasswordEnabled ? defaultPassword : String.valueOf(RandomUtils.nextInt(1000, 10000));
     }
 }

@@ -27,11 +27,11 @@ public class AuthControllerTest {
         mvc.perform(post("/otp").param("phoneNumber", defaultPhone))
                 .andExpect(status().isOk());
         String defaultOtp = "1234";
-        String token = mvc.perform(post("/login").param("phoneNumber", defaultPhone).param("otp", defaultOtp))
+        String token = mvc.perform(post("/auth").param("phoneNumber", defaultPhone).param("otp", defaultOtp))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn().getResponse().getHeader("Authorization");
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Basic " + token);
+        httpHeaders.add("Authorization", token);
         MockHttpServletRequestBuilder requestBuilder = get("/api").headers(httpHeaders);
         mvc.perform(requestBuilder)
                 .andExpect(status().isOk())
