@@ -1,6 +1,7 @@
 package ru.lighthouse.auth.security;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -36,7 +37,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserDetails convertUserToUserDetails(ru.lighthouse.auth.api.entity.User user) {
         String phoneNumber = user.getPhoneNumber();
         String lastOtp = user.getLastOtp();
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(IOS.getSpringRole());
+        String roles = getRoles(user);
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(roles);
         return new User(phoneNumber, lastOtp, grantedAuthorities);
+    }
+
+    private String getRoles(ru.lighthouse.auth.api.entity.User user) {
+        String roles = user.getRoles();
+        if (StringUtils.isEmpty(roles)) {
+            return IOS.getSpringRole();
+        }
+        return roles;
     }
 }

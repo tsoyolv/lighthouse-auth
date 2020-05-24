@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.context.SecurityContextRepository;
 import ru.lighthouse.auth.api.service.OtpService;
 import ru.lighthouse.auth.api.service.UserService;
 
@@ -27,7 +28,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private UserDetailsService userDetailsService;
     @Resource
-    private JWTConfiguration jwtConfig;
+    private JWTService jwtService;
     @Resource
     private OtpService otpService;
     @Resource
@@ -42,11 +43,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .securityContext().securityContextRepository(securityContextRepositoryObject())
+                .and()
                 .addFilter(authenticationFilterObject())
                 .exceptionHandling().authenticationEntryPoint(failedAuthenticationEntryPointObject())
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, jwtConfig.getAuthUri()).permitAll()
+                .antMatchers(HttpMethod.POST, jwtService.getConfiguration().getAuthUri()).permitAll()
                 .antMatchers("/otp", "/testservice", "/local-ip").permitAll()
                 .antMatchers("/api/sell/**").hasRole(IOS_SELLER.name())
                 .anyRequest().authenticated();
@@ -72,8 +75,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    public SecurityContextRepository securityContextRepositoryObject() {
+        return new JWTSecurityContextRepository(jwtService);
+    }
+
     private JwtAuthenticationFilter authenticationFilterObject() throws Exception {
-        return new JwtAuthenticationFilter(authenticationManager(), jwtConfig, otpService, userService, passwordEncoder());
+        return new JwtAuthenticationFilter(authenticationManager(), jwtService, otpService, userService, passwordEncoder());
     }
 
     private AuthenticationEntryPoint failedAuthenticationEntryPointObject() {

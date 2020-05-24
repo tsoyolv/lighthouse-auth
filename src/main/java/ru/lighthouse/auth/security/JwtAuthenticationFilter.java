@@ -2,8 +2,6 @@ package ru.lighthouse.auth.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -27,25 +25,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authManager;
-    private final JWTConfiguration jwtConfig;
+    private final JWTService jwtService;
     private final OtpService otpService;
     private final UserService userService;
     private final PasswordEncoder encoder;
 
-    public JwtAuthenticationFilter(AuthenticationManager authManager, JWTConfiguration jwtConfig, OtpService otpService, UserService userService, PasswordEncoder encoder) {
+    public JwtAuthenticationFilter(AuthenticationManager authManager, JWTService jwtService, OtpService otpService, UserService userService, PasswordEncoder encoder) {
         this.authManager = authManager;
-        this.jwtConfig = jwtConfig;
+        this.jwtService = jwtService;
         this.otpService = otpService;
         this.userService = userService;
         this.encoder = encoder;
-        this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig.getAuthUri(), HttpMethod.POST.name()));
+        this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtService.getConfiguration().getAuthUri(), HttpMethod.POST.name()));
     }
 
     @Override
@@ -71,17 +69,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) {
-        long now = System.currentTimeMillis();
-        String token = Jwts.builder()
-                .setSubject(auth.getName())
-                .claim("authorities", auth.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + jwtConfig.getExpiration() * 1000))  // in milliseconds
-                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
-                .compact();
-
-        response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
+        List<String> authorities = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        String jwtToken = jwtService.createJWTToken(auth.getName(), authorities);
+        response.addHeader(jwtService.getConfiguration().getHeader(), jwtToken);
     }
 
     private String obtainPhoneNumber(HttpServletRequest request) throws IOException {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Getter
 @ToString
 public class JWTConfiguration {
+    public static final String AUTHORITIES_CLAIM_NAME = "authorities";
 
     @Value("${security.jwt.uri}")
     private String authUri;
