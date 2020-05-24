@@ -32,7 +32,6 @@ public class App {
 
     @GetMapping("/testservice")
     public String helloGradle() {
-        System.out.println("Hello auth!");
         return "Hello auth!";
     }
 
