@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, jwtService.getConfiguration().getAuthUri()).permitAll()
-                .antMatchers("/otp", "/testservice", "/local-ip").permitAll()
+                .antMatchers("/otp", "/testservice", "/instance-id").permitAll()
                 .antMatchers("/api/sell/**").hasRole(IOS_SELLER.name())
                 .anyRequest().authenticated();
     }
