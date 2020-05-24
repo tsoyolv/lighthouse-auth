@@ -73,6 +73,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         String jwtToken = jwtService.createJWTToken(auth.getName(), authorities);
         response.addHeader(jwtService.getConfiguration().getHeader(), jwtToken);
+        // create user
     }
 
     private String obtainPhoneNumber(HttpServletRequest request) throws IOException {
