@@ -33,7 +33,7 @@ public class OtpServiceImpl implements OtpService {
     private String defaultPassword;
 
     @Override
-    public void createOtp(String phoneNumber) {
+    public void createAndSendOtp(String phoneNumber) {
         String password = generatePassword(phoneNumber);
         Date prolongationOtp = DateUtils.addSeconds(new Date(), prolongationSeconds);
         Otp otp = new Otp(phoneNumber + password, prolongationOtp);

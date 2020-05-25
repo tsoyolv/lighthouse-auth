@@ -4,19 +4,16 @@ package ru.lighthouse.auth.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -71,23 +68,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             otp = credentialsDto.getOtp();
         }
         return otp;
-    }
-
-    public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
-        @Override
-        public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-            if (authException instanceof InvalidOtpAuthenticationException) {
-                response.sendError(HttpStatus.UNPROCESSABLE_ENTITY.value(), authException.getMessage());
-            } else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            }
-        }
-    }
-
-    public static class InvalidOtpAuthenticationException extends AuthenticationException {
-        public InvalidOtpAuthenticationException(String msg) {
-            super(msg);
-        }
     }
 
     private static class UserCredentialsDto {

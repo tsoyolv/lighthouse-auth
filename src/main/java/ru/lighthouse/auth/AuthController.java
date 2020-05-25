@@ -10,6 +10,9 @@ import ru.lighthouse.auth.otp.OtpService;
 
 import java.util.regex.Pattern;
 
+import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
+import static ru.lighthouse.auth.Uri.OTP_URI;
+
 @RestController
 public class AuthController {
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("7\\d{10}");
@@ -20,15 +23,15 @@ public class AuthController {
         this.otpService = otpService;
     }
 
-    @GetMapping("/api")
+    @GetMapping(CHECK_AUTH_URI)
     public String api() {
         return "Api";
     }
 
-    @PostMapping("/otp")
+    @PostMapping(OTP_URI)
     public ResponseEntity<String> requestOtp(@RequestParam String phoneNumber) {
         if (isValidPhoneNumber(phoneNumber)) {
-            otpService.createOtp(phoneNumber);
+            otpService.createAndSendOtp(phoneNumber);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>("PHONE_NUMBER_INVALID", HttpStatus.UNPROCESSABLE_ENTITY);

@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.lighthouse.auth.App;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
@@ -20,7 +20,7 @@ public class AppTest {
 
     @Test
     public void helloGradle() throws Exception {
-        mvc.perform(get("/testservice"))
+        mvc.perform(get(TEST_SERVICE_URI))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Hello auth!"));
     }

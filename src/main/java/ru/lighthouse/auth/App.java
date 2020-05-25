@@ -6,9 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static ru.lighthouse.auth.Uri.INSTANCE_ID_URI;
+import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
+
 @RestController
 @SpringBootApplication
 public class App {
+
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
@@ -16,12 +20,12 @@ public class App {
     @Value("${service.instance.id}")
     private int instanceId;
 
-    @GetMapping("/instance-id")
+    @GetMapping(INSTANCE_ID_URI)
     public Integer getServiceInstanceId() {
         return instanceId;
     }
 
-    @GetMapping("/testservice")
+    @GetMapping(TEST_SERVICE_URI)
     public String helloGradle() {
         return "Hello auth!";
     }
