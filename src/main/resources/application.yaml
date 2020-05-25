@@ -49,7 +49,7 @@ otp:
     timeout: 30
   default:
     password:
-      enabled: false
+      enabled: true
       value: 1234
 
 #spring.flyway.locations=classpath:/db/migration/postgres
