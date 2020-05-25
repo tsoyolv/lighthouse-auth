@@ -6,12 +6,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.lighthouse.auth.otp.Otp;
 import ru.lighthouse.auth.otp.OtpService;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
 import static ru.lighthouse.auth.Uri.OTP_URI;
+import static ru.lighthouse.auth.Uri.OTP_VIEW_URI;
 
 @RestController
 public class AuthController {
@@ -35,6 +38,11 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>("PHONE_NUMBER_INVALID", HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @GetMapping(OTP_VIEW_URI)
+    public List<Otp> getOtps() {
+        return otpService.getAll();
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {

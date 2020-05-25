@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.lighthouse.auth.sms.SMSMessageService;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +33,9 @@ public class OtpServiceImpl implements OtpService {
     @Value("${otp.default.password.value}")
     private String defaultPassword;
 
+    @Value("${otp.next-otp.timeout}")
+    private int nextOtpTimeout;
+
     @Override
     public void createAndSendOtp(String phoneNumber) {
         String password = generatePassword(phoneNumber);
@@ -49,7 +53,7 @@ public class OtpServiceImpl implements OtpService {
             Otp otp = otpOptional.get();
             Date now = new Date();
             if (now.before(otp.getProlongationDate())) {
-                otpRepository.delete(otp);
+                otpRepository.deleteByPhoneNumberOtpIsStartingWith(phoneNumber);
                 return true;
             }
         }
@@ -59,6 +63,11 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public boolean isOtpNotValid(String phoneNumber, String otp) {
         return !isOtpValid(phoneNumber, otp);
+    }
+
+    @Override
+    public List<Otp> getAll() {
+        return otpRepository.findAll();
     }
 
     private String createMessage(String password) {

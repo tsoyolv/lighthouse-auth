@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 
 import static ru.lighthouse.auth.Uri.INSTANCE_ID_URI;
 import static ru.lighthouse.auth.Uri.OTP_URI;
+import static ru.lighthouse.auth.Uri.OTP_VIEW_URI;
 import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
 
 @EnableWebSecurity
@@ -42,7 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(failedAuthenticationEntryPointObject())
                 .and()
                 .authorizeRequests()
-                .antMatchers(OTP_URI, jwtService.getAuthUri(), TEST_SERVICE_URI, INSTANCE_ID_URI).permitAll()
+                .antMatchers(OTP_URI, jwtService.getAuthUri(), TEST_SERVICE_URI, INSTANCE_ID_URI, OTP_VIEW_URI).permitAll()
                 .anyRequest().authenticated();
     }
 
