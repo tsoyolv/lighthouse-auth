@@ -1,7 +1,6 @@
 package ru.lighthouse.auth.security;
 
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -9,11 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import ru.lighthouse.auth.api.service.OtpService;
-import ru.lighthouse.auth.api.service.UserService;
+import ru.lighthouse.auth.otp.OtpService;
 
 import javax.annotation.Resource;
 
@@ -27,8 +23,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JWTService jwtService;
     @Resource
     private OtpService otpService;
-    @Resource
-    private UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,7 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(failedAuthenticationEntryPointObject())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/otp", jwtService.getConfiguration().getAuthUri(), "/testservice", "/instance-id").permitAll()
+                .antMatchers("/otp", jwtService.getAuthUri(), "/testservice", "/instance-id").permitAll()
                 .anyRequest().authenticated();
     }
 
@@ -53,22 +47,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-    }
-
-    @Bean
-    public JWTConfiguration jwtConfig() {
-        return new JWTConfiguration();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(authenticationProviderObject());
     }
 
     private JwtAuthenticationFilter authenticationFilterObject() throws Exception {
-        return new JwtAuthenticationFilter(authenticationManager(), jwtService, otpService, userService, passwordEncoder());
+        return new JwtAuthenticationFilter(authenticationManager(), jwtService);
+    }
+
+    private OTPAuthenticationProvider authenticationProviderObject() {
+        return new OTPAuthenticationProvider(otpService);
     }
 
     private AuthenticationEntryPoint failedAuthenticationEntryPointObject() {

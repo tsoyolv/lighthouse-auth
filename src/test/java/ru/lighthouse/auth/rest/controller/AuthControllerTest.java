@@ -9,6 +9,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.lighthouse.auth.App;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -30,12 +33,8 @@ public class AuthControllerTest {
         String token = mvc.perform(post("/auth").param("phoneNumber", defaultPhone).param("otp", defaultOtp))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getHeader("Authorization");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", token);
-        MockHttpServletRequestBuilder requestBuilder = get("/api").headers(httpHeaders);
-        mvc.perform(requestBuilder)
-                .andExpect(status().isOk())
-                .andExpect(content().string("Api"));
+        assertNotNull(token);
+        assertTrue(token.contains("Basic"));
     }
 
     @Test

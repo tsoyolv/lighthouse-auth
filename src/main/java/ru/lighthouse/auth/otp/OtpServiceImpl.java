@@ -1,12 +1,10 @@
-package ru.lighthouse.auth.api.service;
+package ru.lighthouse.auth.otp;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.lighthouse.auth.api.entity.Otp;
-import ru.lighthouse.auth.api.repository.OtpRepository;
-import ru.lighthouse.auth.message.SMSMessageService;
+import ru.lighthouse.auth.sms.SMSMessageService;
 
 import java.util.Date;
 import java.util.Optional;

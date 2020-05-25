@@ -1,22 +1,32 @@
 package ru.lighthouse.auth.security;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-
-import static ru.lighthouse.auth.security.JWTConfiguration.AUTHORITIES_CLAIM_NAME;
 
 @Service
 public class JWTService {
 
-    // it has to be a Resource or Autowired, either it will be a cycle: SecurityConfiguratio -> JWTConfiguration
-    @Resource
-    private JWTConfiguration configuration;
+    public static final String AUTHORITIES_CLAIM_NAME = "authorities";
+
+    @Value("${security.jwt.uri}")
+    private String authUri;
+
+    @Value("${security.jwt.header:Authorization}")
+    private String header;
+
+    @Value("${security.jwt.prefix:Basic }")
+    private String prefix;
+
+    @Value("${security.jwt.expiration}")
+    private int expiration;
+
+    @Value("${security.jwt.secret}")
+    private String secret;
 
     public String createJWTToken(String subject, List<String> authorities) {
         long now = System.currentTimeMillis();
@@ -24,20 +34,29 @@ public class JWTService {
                 .setSubject(subject)
                 .claim(AUTHORITIES_CLAIM_NAME, authorities)
                 .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + configuration.getExpiration() * 1000))  // in milliseconds
-                .signWith(SignatureAlgorithm.HS512, configuration.getSecret().getBytes())
+                .setExpiration(new Date(now + getExpiration() * 1000))  // in milliseconds
+                .signWith(SignatureAlgorithm.HS512, getSecret().getBytes())
                 .compact();
-        return configuration.getPrefix() + token;
+        return getPrefix() + token;
+    }
+    
+    public String getAuthUri() {
+        return authUri;
     }
 
-    public Claims validateAndGetClaims(String token) throws Exception {
-        return Jwts.parser()
-                .setSigningKey(configuration.getSecret().getBytes())
-                .parseClaimsJws(token)
-                .getBody();
+    public String getHeader() {
+        return header;
     }
 
-    public JWTConfiguration getConfiguration() {
-        return configuration;
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public int getExpiration() {
+        return expiration;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 }

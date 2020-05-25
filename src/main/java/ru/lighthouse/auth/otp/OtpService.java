@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.api.service;
+package ru.lighthouse.auth.otp;
 
 public interface OtpService {
     void createOtp(String phoneNumber);

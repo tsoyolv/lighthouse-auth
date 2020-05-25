@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.api.entity;
+package ru.lighthouse.auth.otp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

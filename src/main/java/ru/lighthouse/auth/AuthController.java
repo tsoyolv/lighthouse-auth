@@ -1,29 +1,23 @@
-package ru.lighthouse.auth.rest.controller;
+package ru.lighthouse.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.lighthouse.auth.api.entity.User;
-import ru.lighthouse.auth.api.service.OtpService;
-import ru.lighthouse.auth.api.service.UserService;
+import ru.lighthouse.auth.otp.OtpService;
 
-import java.util.Optional;
-
-import static ru.lighthouse.auth.message.AuthUtils.isValidPhoneNumber;
+import java.util.regex.Pattern;
 
 @RestController
 public class AuthController {
+    private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("7\\d{10}");
 
     private final OtpService otpService;
-    private final UserService userService;
 
-    public AuthController(OtpService otpService, UserService userService) {
+    public AuthController(OtpService otpService) {
         this.otpService = otpService;
-        this.userService = userService;
     }
 
     @GetMapping("/api")
@@ -40,9 +34,7 @@ public class AuthController {
         return new ResponseEntity<>("PHONE_NUMBER_INVALID", HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @GetMapping(value = "/api/users/user/{id}",produces = "application/json")
-    public User getUserDetail(@PathVariable Long id){
-        Optional<User> userOptional = userService.findById(id);
-        return userOptional.orElse(null);
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        return PHONE_NUMBER_PATTERN.matcher(phoneNumber).matches();
     }
 }

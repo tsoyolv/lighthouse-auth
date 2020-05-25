@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.message;
+package ru.lighthouse.auth.sms;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
