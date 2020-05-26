@@ -10,12 +10,15 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import ru.lighthouse.auth.integration.MainServiceAdapter;
+import ru.lighthouse.auth.integration.UserDto;
 import ru.lighthouse.auth.otp.OtpService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
@@ -23,11 +26,13 @@ import static org.springframework.security.core.authority.AuthorityUtils.createA
 public class OTPAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     private final OtpService otpService;
+    private final MainServiceAdapter mainServiceAdapter;
 
     public static final String DEFAULT_AUTH_ROLE = "ROLE_IOS";
 
-    public OTPAuthenticationProvider(OtpService otpService) {
+    public OTPAuthenticationProvider(OtpService otpService, MainServiceAdapter mainServiceAdapter) {
         this.otpService = otpService;
+        this.mainServiceAdapter = mainServiceAdapter;
     }
 
     @Override
@@ -40,7 +45,7 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
             throw new InvalidOtpAuthenticationException("SMS_CODE_INVALID");
         }
         try {
-            createUserIfNotExist(phoneNumber, otp);
+            createUserIfNotExist(phoneNumber);
         } catch (Exception e) {
             throw new UsernameNotFoundException("User creation failed");
         }
@@ -52,8 +57,9 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         // there is no need additional checks
     }
 
-    private void createUserIfNotExist(String phoneNumber, String otp) {
-
+    private void createUserIfNotExist(String phoneNumber) {
+        UserDto userDto = new UserDto(phoneNumber, Collections.singletonList(DEFAULT_AUTH_ROLE));
+        mainServiceAdapter.createOrUpdateUser(userDto);
     }
 
     public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
