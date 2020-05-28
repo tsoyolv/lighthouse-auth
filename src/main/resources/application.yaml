@@ -52,12 +52,9 @@ otp:
       enabled: true
       value: 1234
 
-# There is no need in ZUUL framework. It used only for sharing properties in kubernetes
-zuul:
-  routes:
-    main-service:
-      url: http://localhost:8002
-      service-id: main-service
+main-service:
+  url: http://localhost:8002
+  service-id: main-service
 
 #spring.flyway.locations=classpath:/db/migration/postgres
 #spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
