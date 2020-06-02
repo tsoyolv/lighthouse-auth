@@ -24,7 +24,7 @@ public class Otp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="PHONE_NUMBER_OTP", length=100, unique=false)
+    @Column(name="PHONE_NUMBER_OTP")
     private String phoneNumberOtp;
 
     @Column(name="PROLONGATION_DATE")

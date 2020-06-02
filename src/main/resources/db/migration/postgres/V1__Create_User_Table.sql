@@ -1,7 +1,0 @@
-CREATE TABLE "USER"
-(
-    ID            SERIAL PRIMARY KEY,
-    NAME          VARCHAR(20),
-    EMAIL         VARCHAR(50),
-    DATE_OF_BIRTH TIMESTAMP
-);

@@ -31,10 +31,8 @@ public class AuthControllerTest {
     @Test
     public void testAuthorizedUser() throws Exception {
         String defaultPhone = "79779873676";
-        mvc.perform(post(OTP_URI).param("phoneNumber", defaultPhone))
-                .andExpect(status().isOk());
-        String defaultOtp = "1234";
-        String token = mvc.perform(post(jwtService.getAuthUri()).param("phoneNumber", defaultPhone).param("otp", defaultOtp))
+        mvc.perform(post(OTP_URI).param("phoneNumber", defaultPhone)).andExpect(status().isOk());
+        String token = mvc.perform(post(jwtService.getAuthUri()).param("phoneNumber", defaultPhone).param("otp", "1234"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getHeader(jwtService.getHeader());
         assertNotNull(token);
@@ -43,8 +41,7 @@ public class AuthControllerTest {
 
     @Test
     public void testUnauthorizedUser() throws Exception {
-        mvc.perform(get(CHECK_AUTH_URI))
-                .andExpect(status().isUnauthorized());
+        mvc.perform(get(CHECK_AUTH_URI)).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -52,7 +49,6 @@ public class AuthControllerTest {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(jwtService.getHeader(), jwtService.getPrefix() + "wrongheader");
         MockHttpServletRequestBuilder requestBuilder = get(CHECK_AUTH_URI).headers(httpHeaders);
-        mvc.perform(requestBuilder)
-                .andExpect(status().isUnauthorized());
+        mvc.perform(requestBuilder).andExpect(status().isUnauthorized());
     }
 }

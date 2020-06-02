@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
@@ -57,9 +59,10 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         // there is no need additional checks
     }
 
-    private void createUserIfNotExist(String phoneNumber) {
+    private void createUserIfNotExist(String phoneNumber) throws ExecutionException, InterruptedException {
         UserDto userDto = new UserDto(phoneNumber, Collections.singletonList(DEFAULT_AUTH_ROLE));
-        mainServiceAdapter.createOrUpdateUser(userDto);
+        FutureTask<UserDto> future = mainServiceAdapter.createOrUpdateUser(userDto);
+        //future.get();
     }
 
     public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {

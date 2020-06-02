@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.lighthouse.auth.sms.SMSMessageService;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,7 @@ public class OtpServiceImpl implements OtpService {
     @Value("${otp.prolongation.seconds}")
     private int prolongationSeconds;
 
-    @Value("${sms.message.pattern.login}")
+    @Value("${sms.message.pattern}")
     private String smsLoginPattern;
 
     @Value("${otp.default.password.enabled}")
@@ -38,7 +40,7 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void createAndSendOtp(String phoneNumber) {
-        String password = generatePassword(phoneNumber);
+        String password = generatePassword();
         Date prolongationOtp = DateUtils.addSeconds(new Date(), prolongationSeconds);
         Otp otp = new Otp(phoneNumber + password, prolongationOtp);
         otpRepository.save(otp);
@@ -71,11 +73,12 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private String createMessage(String password) {
-        //return String.format(smsLoginPattern, password); todo
-        return String.format("Ваш пароль от LightHouse: %s. С праздничком!", password);
+        ByteBuffer buffer = StandardCharsets.UTF_8.encode(smsLoginPattern);
+        String utf8EncodedString = StandardCharsets.UTF_8.decode(buffer).toString();
+        return String.format(utf8EncodedString, password);
     }
 
-    private String generatePassword(String phoneNumber) {
+    private String generatePassword() {
         return defaultPasswordEnabled ? defaultPassword : String.valueOf(RandomUtils.nextInt(1000, 10000));
     }
 }
