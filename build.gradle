@@ -29,6 +29,8 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:${apacheCommonLangVersion}"
     implementation "io.jsonwebtoken:jjwt:${jjwtversion}"
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    testImplementation "org.mock-server:mockserver-client-java:${mockServerVersion}"
+    testImplementation "org.mock-server:mockserver-netty:${mockServerVersion}"
 }
 
 dependencyManagement {

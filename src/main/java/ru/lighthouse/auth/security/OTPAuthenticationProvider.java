@@ -62,7 +62,7 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
     private void createUserIfNotExist(String phoneNumber) throws ExecutionException, InterruptedException {
         UserDto userDto = new UserDto(phoneNumber, Collections.singletonList(DEFAULT_AUTH_ROLE));
         FutureTask<UserDto> future = mainServiceAdapter.createOrUpdateUser(userDto);
-        //future.get();
+        future.get();
     }
 
     public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
