@@ -20,6 +20,8 @@ spring:
       path: /h2
 # go to http://localhost:8001/h2 and enter jdbc:h2:file:/home/tsoyolv/projects/lighthouse/github/lighthouse/auth-service/h2-file-db/data/lighthouse
 
+# --------------------------------------------- Shared properties ------------------------------------------------------
+
 security:
   jwt:
     uri: /auth/**
