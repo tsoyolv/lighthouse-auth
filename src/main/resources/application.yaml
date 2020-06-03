@@ -7,7 +7,7 @@ spring:
   application:
       name: auth-service
   datasource:
-    url: jdbc:h2:file:./h2-file-db/data/lighthouse;AUTO_SERVER=TRUE
+    url: jdbc:h2:file:.${shared-folders.h2-db-file}/lighthouse;AUTO_SERVER=TRUE
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -21,6 +21,9 @@ spring:
 # go to http://localhost:8001/h2 and enter jdbc:h2:file:/home/tsoyolv/projects/lighthouse/github/lighthouse/auth-service/h2-file-db/data/lighthouse
 
 # --------------------------------------------- Shared properties ------------------------------------------------------
+
+shared-folders:
+    h2-db-file: /h2-file-db/data
 
 security:
   jwt:
