@@ -66,3 +66,8 @@ sourceSets {
 test {
     useJUnitPlatform()
 }
+
+clean.doLast {
+    file('h2-file-db').deleteDir()
+    file('logs').deleteDir()
+}
