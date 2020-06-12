@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
 import static ru.lighthouse.auth.Uri.OTP_URI;
+import static ru.lighthouse.auth.integration.MainServiceFeignClient.USER_URI;
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
@@ -72,7 +73,7 @@ public class AuthControllerTest {
         mockServer.when(
                 request()
                         .withMethod("POST")
-                        .withPath("/user")
+                        .withPath(USER_URI)
                         .withBody(exact("{\"phoneNumber\":\"" + DEFAULT_PHONE + "\",\"authorities\":[\"ROLE_IOS\"]}")),
                 exactly(1))
                 .respond(
