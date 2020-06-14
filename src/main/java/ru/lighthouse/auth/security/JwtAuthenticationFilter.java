@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authManager;
@@ -36,10 +38,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             String phoneNumber = obtainPhoneNumber(request);
             String otp = obtainOtp(request);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp);
+            List<GrantedAuthority> authorities = obtainAuthorities(request);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp, authorities);
             return authManager.authenticate(authToken);
         } catch (IOException e) {
-            throw new AuthenticationServiceException("", e);
+            throw new AuthenticationServiceException("Error in authentication", e);
         }
     }
 
@@ -68,6 +71,26 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             otp = credentialsDto.getOtp();
         }
         return otp;
+    }
+
+    private List<GrantedAuthority> obtainAuthorities(HttpServletRequest request) {
+        String role = request.getParameter("role");
+        if (StringUtils.isEmpty(role)) {
+            return createAuthorityList(DefaultAuthority.ROLE_IOS.name());
+        }
+        return createAuthorityList(DefaultAuthority.valueOf(role).name());
+    }
+
+    public enum DefaultAuthority {
+        ROLE_IOS("IOS пользователь"), ROLE_ANDROID("Андроид пользователь"), ROLE_WEB("WEB пользователь");
+        private String desc;
+        DefaultAuthority(String desc) {
+            this.desc = desc;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
     }
 
     private static class UserCredentialsDto {

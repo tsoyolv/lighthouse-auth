@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.matchers.MatchType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +24,7 @@ import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import static org.mockserver.model.StringBody.exact;
+import static org.mockserver.model.JsonBody.json;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -74,11 +75,13 @@ public class AuthControllerTest {
                 request()
                         .withMethod("POST")
                         .withPath(USER_URI)
-                        .withBody(exact("{\"phoneNumber\":\"" + DEFAULT_PHONE + "\",\"authorities\":[\"ROLE_IOS\"]}")),
+                        .withBody(json("{\"id\":null,\"authorities\":[{\"name\":\"IOS Ð¿Ð¾Ð»Ñ\u008CÐ·Ð¾Ð²Ð°Ñ\u0082ÐµÐ»Ñ\u008C\",\"systemName\":\"ROLE_IOS\"}],\"phoneNumber\":\"79779873676\",\"enabled\":true,\"accountNonLocked\":true,\"firstName\":null,\"secondName\":null,\"lastName\":null,\"birthDate\":null}"
+                                , MatchType.ONLY_MATCHING_FIELDS)),
                 exactly(1))
                 .respond(
                         response()
                                 .withStatusCode(HttpStatus.OK.value())
+                                .withBody(json("{\"id\":null,\"authorities\":[{\"name\":\"IOS\",\"systemName\":\"ROLE_IOS\"}],\"phoneNumber\":\"79779873676\",\"enabled\":true,\"accountNonLocked\":true,\"firstName\":null,\"secondName\":null,\"lastName\":null,\"birthDate\":null}"))
                                 .withDelay(TimeUnit.SECONDS, 1)
                 );
     }

@@ -15,7 +15,7 @@ public class MainServiceAdapterImpl implements MainServiceAdapter {
     }
 
     @Override
-    public FutureTask<UserDto> createOrUpdateUser(UserDto userDto) {
+    public FutureTask<UserDto> getOrCreateUser(UserDto userDto) {
         Callable<UserDto> task = () -> mainServiceFeignClient.createOrUpdateUser(userDto);
         return getFuture(task);
     }
