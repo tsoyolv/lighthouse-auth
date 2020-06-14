@@ -30,6 +30,15 @@ security:
     uri: /auth/**
     secret: 12k;msdfg/!@#$%sd
     expiration: "#{10*24*60*60}"
+    claims:
+      authorities: authorities
+      details:
+        name: details
+        userId: userId
+        userBirthDate: userBirthDate
+        userFirstName: userFirstName
+        userSecondName: userSecondName
+        userLastName: userLastName
 
 sms:
   serviceEnabled: false

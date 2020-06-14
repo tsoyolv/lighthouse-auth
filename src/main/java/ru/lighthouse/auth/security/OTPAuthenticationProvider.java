@@ -1,5 +1,6 @@
 package ru.lighthouse.auth.security;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -28,15 +30,11 @@ import java.util.stream.Collectors;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
+@RequiredArgsConstructor
 public class OTPAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-
+    private final JWTService jwtService;
     private final OtpService otpService;
     private final MainServiceAdapter mainServiceAdapter;
-
-    public OTPAuthenticationProvider(OtpService otpService, MainServiceAdapter mainServiceAdapter) {
-        this.otpService = otpService;
-        this.mainServiceAdapter = mainServiceAdapter;
-    }
 
     @Override
     protected UserDetails retrieveUser(String phoneNumber, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -49,9 +47,9 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
         try {
             final Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-            final UserDto authUser = authUser(phoneNumber, authorities);
-            setAuthenticationDetails(authentication, authUser);
-            return convertIntegrationDtoToUser(authUser, otp);
+            final UserDto user = getOrCreateUser(phoneNumber, authorities);
+            setAuthenticationDetails(authentication, user);
+            return convertIntegrationDtoToUser(user, otp);
         } catch (Exception e) {
             throw new UsernameNotFoundException("User creation failed");
         }
@@ -67,18 +65,19 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
     }
 
-    private void setAuthenticationDetails(UsernamePasswordAuthenticationToken authentication, UserDto authUser) {
-
+    private void setAuthenticationDetails(UsernamePasswordAuthenticationToken authentication, UserDto user) {
+        LinkedHashMap<String, Object> details = jwtService.createDetails(user.getId(), user.getBirthDate(), user.getFirstName(), user.getSecondName(), user.getLastName());
+        authentication.setDetails(details);
     }
 
     private UserDetails convertIntegrationDtoToUser(UserDto authUser, String otp) {
         final List<String> authorities = authUser.getAuthorities().stream().map(AuthorityDto::getSystemName).collect(Collectors.toList());
         final List<GrantedAuthority> authorityList = createAuthorityList(authorities.toArray(String[]::new));
-        return new User(authUser.getPhoneNumber(), otp, authUser.getEnabled(), authUser.getAccountNonLocked(),
-                true, true, authorityList);
+        return new User(authUser.getPhoneNumber(), otp, authUser.getEnabled(), true,
+                true, authUser.getAccountNonLocked(), authorityList);
     }
 
-    private UserDto authUser(String phoneNumber, Collection<GrantedAuthority> authorities) throws ExecutionException, InterruptedException {
+    private UserDto getOrCreateUser(String phoneNumber, Collection<GrantedAuthority> authorities) throws ExecutionException, InterruptedException {
         final Set<AuthorityDto> authorityDtos = authorities.stream()
                 .map(a -> JwtAuthenticationFilter.DefaultAuthority.valueOf(a.getAuthority()))
                 .map(aDto -> new AuthorityDto(aDto.getDesc(), aDto.name()))

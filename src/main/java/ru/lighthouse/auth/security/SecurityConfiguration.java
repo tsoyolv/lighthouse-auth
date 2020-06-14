@@ -64,7 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private OTPAuthenticationProvider authenticationProviderObject() {
-        return new OTPAuthenticationProvider(otpService, mainServiceAdapter);
+        return new OTPAuthenticationProvider(jwtService, otpService, mainServiceAdapter);
     }
 
     private AuthenticationEntryPoint failedAuthenticationEntryPointObject() {

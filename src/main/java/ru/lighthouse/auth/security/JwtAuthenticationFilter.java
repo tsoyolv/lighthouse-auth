@@ -1,7 +1,6 @@
 package ru.lighthouse.auth.security;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,14 +15,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
 
@@ -36,12 +33,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            String phoneNumber = obtainPhoneNumber(request);
-            String otp = obtainOtp(request);
+            String phoneNumber = obtainRequestParameter(request, "phoneNumber");
+            String otp = obtainRequestParameter(request, "otp");
             List<GrantedAuthority> authorities = obtainAuthorities(request);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp, authorities);
             return authManager.authenticate(authToken);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new AuthenticationServiceException("Error in authentication", e);
         }
     }
@@ -51,34 +48,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication auth) {
         List<String> authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        String jwtToken = jwtService.createJWTToken(auth.getName(), authorities);
+        String jwtToken = jwtService.createJWTToken(auth.getName(), authorities, auth.getDetails());
         response.addHeader(jwtService.getHeader(), jwtToken);
     }
 
-    private String obtainPhoneNumber(HttpServletRequest request) throws IOException {
-        String phoneNumber = request.getParameter("phoneNumber");
-        if (StringUtils.isEmpty(phoneNumber)) {
-            UserCredentialsDto credentialsDto = new ObjectMapper().readValue(request.getInputStream(), UserCredentialsDto.class);
-            phoneNumber = credentialsDto.getPhoneNumber();
-        }
-        return phoneNumber;
-    }
-
-    private String obtainOtp(HttpServletRequest request) throws IOException {
-        String otp = request.getParameter("otp");
-        if (StringUtils.isEmpty(otp)) {
-            UserCredentialsDto credentialsDto = new ObjectMapper().readValue(request.getInputStream(), UserCredentialsDto.class);
-            otp = credentialsDto.getOtp();
-        }
-        return otp;
-    }
-
     private List<GrantedAuthority> obtainAuthorities(HttpServletRequest request) {
-        String role = request.getParameter("role");
+        String role = obtainRequestParameter(request, "role");
         if (StringUtils.isEmpty(role)) {
             return createAuthorityList(DefaultAuthority.ROLE_IOS.name());
         }
         return createAuthorityList(DefaultAuthority.valueOf(role).name());
+    }
+
+    private String obtainRequestParameter(HttpServletRequest request, String paramName) {
+        return request.getParameter(paramName);
     }
 
     public enum DefaultAuthority {
@@ -87,27 +70,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         DefaultAuthority(String desc) {
             this.desc = desc;
         }
-
         public String getDesc() {
             return desc;
-        }
-    }
-
-    private static class UserCredentialsDto {
-        private String phoneNumber, otp;
-
-        public String getPhoneNumber() {
-            return phoneNumber;
-        }
-
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-        }
-        public String getOtp() {
-            return otp;
-        }
-        public void setOtp(String otp) {
-            this.otp = otp;
         }
     }
 }
