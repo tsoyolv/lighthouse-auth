@@ -1,5 +1,9 @@
 package ru.lighthouse.auth.otp;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,11 +14,8 @@ import java.util.Date;
 
 @Entity
 @Table(name="OTP")
+@NoArgsConstructor @Getter @Setter
 public class Otp {
-
-    public Otp() {
-    }
-
     public Otp(String phoneNumberOtp, Date prolongationDate) {
         this.phoneNumberOtp = phoneNumberOtp;
         this.prolongationDate = prolongationDate;
@@ -29,28 +30,4 @@ public class Otp {
 
     @Column(name="PROLONGATION_DATE")
     private Date prolongationDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPhoneNumberOtp() {
-        return phoneNumberOtp;
-    }
-
-    public void setPhoneNumberOtp(String phoneNumberOtp) {
-        this.phoneNumberOtp = phoneNumberOtp;
-    }
-
-    public Date getProlongationDate() {
-        return prolongationDate;
-    }
-
-    public void setProlongationDate(Date prolongationDate) {
-        this.prolongationDate = prolongationDate;
-    }
 }

@@ -31,9 +31,10 @@ security:
     secret: 12k;msdfg/!@#$%sd
     expiration: "#{10*24*60*60}"
     claims:
-      authorities: authorities
+      authorities:
+        claimName: authorities
       details:
-        name: details
+        claimName: details
         userId: userId
         userBirthDate: userBirthDate
         userFirstName: userFirstName
@@ -64,3 +65,7 @@ otp:
 main-service:
   url: http://localhost:8002
   service-id: main-service
+
+web-service:
+  url: http://localhost:8003
+  service-id: web-service

@@ -24,11 +24,11 @@ public class JWTService {
     @Value("${security.jwt.secret}")
     private String secret;
 
-    @Value("${security.jwt.claims.authorities}")
+    @Value("${security.jwt.claims.authorities.claimName}")
     private String authoritiesClaimName;
-
-    @Value("${security.jwt.claims.details.name}")
+    @Value("${security.jwt.claims.details.claimName}")
     private String detailsClaimName;
+
     @Value("${security.jwt.claims.details.userId}")
     private String detailsClaimUserIdClaimName;
     @Value("${security.jwt.claims.details.userFirstName}")

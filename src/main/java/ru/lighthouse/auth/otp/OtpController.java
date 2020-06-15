@@ -1,4 +1,4 @@
-package ru.lighthouse.auth;
+package ru.lighthouse.auth.otp;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +17,12 @@ import static ru.lighthouse.auth.Uri.OTP_URI;
 import static ru.lighthouse.auth.Uri.OTP_VIEW_URI;
 
 @RestController
-public class AuthController {
+public class OtpController {
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("7\\d{10}");
 
     private final OtpService otpService;
 
-    public AuthController(OtpService otpService) {
+    public OtpController(OtpService otpService) {
         this.otpService = otpService;
     }
 

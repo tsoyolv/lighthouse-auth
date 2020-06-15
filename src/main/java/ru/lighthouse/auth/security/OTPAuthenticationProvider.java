@@ -84,7 +84,7 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
                 .collect(Collectors.toSet());
         UserDto userDto = new UserDto(phoneNumber, authorityDtos);
         FutureTask<UserDto> future = mainServiceAdapter.getOrCreateUser(userDto);
-        try { return future.get(); } catch (ExecutionException e) { return userDto; } // for test AuthControllerTest.testAuthorizedUser
+        return future.get();
     }
 
     public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {

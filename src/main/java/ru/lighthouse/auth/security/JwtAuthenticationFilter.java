@@ -46,8 +46,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) {
-        List<String> authorities = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<String> authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         String jwtToken = jwtService.createJWTToken(auth.getName(), authorities, auth.getDetails());
         response.addHeader(jwtService.getHeader(), jwtToken);
     }

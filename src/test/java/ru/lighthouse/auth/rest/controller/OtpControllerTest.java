@@ -1,10 +1,13 @@
 package ru.lighthouse.auth.rest.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.matchers.MatchType;
+import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,8 +17,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.lighthouse.auth.App;
+import ru.lighthouse.auth.integration.AuthorityDto;
+import ru.lighthouse.auth.integration.UserDto;
 import ru.lighthouse.auth.security.JWTService;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,17 +31,18 @@ import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.JsonBody.json;
+import static org.mockserver.model.StringBody.exact;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
 import static ru.lighthouse.auth.Uri.OTP_URI;
-import static ru.lighthouse.auth.integration.MainServiceFeignClient.USER_URI;
+import static ru.lighthouse.auth.integration.MainServiceAdapterImpl.USER_URI;
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class AuthControllerTest {
+public class OtpControllerTest {
     private static final String DEFAULT_PHONE = "79779873676";
 
     @Autowired
@@ -69,7 +76,9 @@ public class AuthControllerTest {
     private static MockServerClient mockServer;
 
     @BeforeAll
-    private static void startMockServer() {
+    private static void startMockServer() throws JsonProcessingException {
+        UserDto userDto = new UserDto(DEFAULT_PHONE, Collections.singleton(new AuthorityDto("IOS", "ROLE_IOS")));
+        final String response = new ObjectMapper().writeValueAsString(userDto);
         mockServer = startClientAndServer(8002);
         mockServer.when(
                 request()
@@ -81,7 +90,7 @@ public class AuthControllerTest {
                 .respond(
                         response()
                                 .withStatusCode(HttpStatus.OK.value())
-                                .withBody(json("{\"id\":null,\"authorities\":[{\"name\":\"IOS\",\"systemName\":\"ROLE_IOS\"}],\"phoneNumber\":\"79779873676\",\"enabled\":true,\"accountNonLocked\":true,\"firstName\":null,\"secondName\":null,\"lastName\":null,\"birthDate\":null}"))
+                                .withBody(exact(response, MediaType.APPLICATION_JSON))
                                 .withDelay(TimeUnit.SECONDS, 1)
                 );
     }
