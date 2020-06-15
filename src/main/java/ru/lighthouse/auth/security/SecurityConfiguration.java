@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import ru.lighthouse.auth.integration.MainServiceAdapter;
+import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
 import ru.lighthouse.auth.otp.OtpService;
 
 import javax.annotation.Resource;
@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private OtpService otpService;
     @Resource
-    private MainServiceAdapter mainServiceAdapter;
+    private IntegrationServiceAdapter integrationServiceAdapter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -64,7 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private OTPAuthenticationProvider authenticationProviderObject() {
-        return new OTPAuthenticationProvider(jwtService, otpService, mainServiceAdapter);
+        return new OTPAuthenticationProvider(jwtService, otpService, integrationServiceAdapter);
     }
 
     private AuthenticationEntryPoint failedAuthenticationEntryPointObject() {

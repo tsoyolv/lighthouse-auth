@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
 import static ru.lighthouse.auth.Uri.OTP_URI;
-import static ru.lighthouse.auth.integration.MainServiceAdapterImpl.USER_URI;
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
@@ -78,12 +77,13 @@ public class OtpControllerTest {
     @BeforeAll
     private static void startMockServer() throws JsonProcessingException {
         UserDto userDto = new UserDto(DEFAULT_PHONE, Collections.singleton(new AuthorityDto("IOS", "ROLE_IOS")));
+        userDto.setId(1L);
         final String response = new ObjectMapper().writeValueAsString(userDto);
         mockServer = startClientAndServer(8002);
         mockServer.when(
                 request()
                         .withMethod("POST")
-                        .withPath(USER_URI)
+                        .withPath("/integration/user")
                         .withBody(json("{\"id\":null,\"authorities\":[{\"name\":\"IOS Ð¿Ð¾Ð»Ñ\u008CÐ·Ð¾Ð²Ð°Ñ\u0082ÐµÐ»Ñ\u008C\",\"systemName\":\"ROLE_IOS\"}],\"phoneNumber\":\"79779873676\",\"enabled\":true,\"accountNonLocked\":true,\"firstName\":null,\"secondName\":null,\"lastName\":null,\"birthDate\":null}"
                                 , MatchType.ONLY_MATCHING_FIELDS)),
                 exactly(1))

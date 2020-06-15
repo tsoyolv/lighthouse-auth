@@ -64,7 +64,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     public enum DefaultAuthority {
-        ROLE_IOS("IOS пользователь"), ROLE_ANDROID("Андроид пользователь"), ROLE_WEB("WEB пользователь");
+        ROLE_IOS("IOS пользователь"), ROLE_ANDROID("Андроид пользователь"),
+        ROLE_WEB("WEB пользователь"), ROLE_CRM("CRM пользователь");
         private String desc;
         DefaultAuthority(String desc) {
             this.desc = desc;

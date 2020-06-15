@@ -62,10 +62,14 @@ otp:
       enabled: true
       value: 1234
 
-main-service:
+mobile-service:
   url: http://localhost:8002
-  service-id: main-service
+  service-id: mobile-service
 
 web-service:
-  url: http://localhost:8003
+  url: http://localhost:8004
+  service-id: web-service
+
+crm-service:
+  url: http://localhost:8005
   service-id: web-service

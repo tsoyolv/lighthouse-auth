@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import ru.lighthouse.auth.integration.AuthorityDto;
-import ru.lighthouse.auth.integration.MainServiceAdapter;
+import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
 import ru.lighthouse.auth.integration.UserDto;
 import ru.lighthouse.auth.otp.OtpService;
 
@@ -34,7 +34,7 @@ import static org.springframework.security.core.authority.AuthorityUtils.createA
 public class OTPAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     private final JWTService jwtService;
     private final OtpService otpService;
-    private final MainServiceAdapter mainServiceAdapter;
+    private final IntegrationServiceAdapter integrationServiceAdapter;
 
     @Override
     protected UserDetails retrieveUser(String phoneNumber, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -83,7 +83,7 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
                 .map(aDto -> new AuthorityDto(aDto.getDesc(), aDto.name()))
                 .collect(Collectors.toSet());
         UserDto userDto = new UserDto(phoneNumber, authorityDtos);
-        FutureTask<UserDto> future = mainServiceAdapter.getOrCreateUser(userDto);
+        FutureTask<UserDto> future = integrationServiceAdapter.getOrCreateUser(userDto);
         return future.get();
     }
 
