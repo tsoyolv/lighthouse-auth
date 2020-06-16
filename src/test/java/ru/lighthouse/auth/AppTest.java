@@ -9,8 +9,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static ru.lighthouse.auth.App.HEALTH_RESPONSE;
+import static ru.lighthouse.auth.App.HEALTH_URI;
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
@@ -22,8 +24,8 @@ public class AppTest {
 
     @Test
     public void helloGradle() throws Exception {
-        mvc.perform(get(TEST_SERVICE_URI))
+        mvc.perform(get(HEALTH_URI))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Hello auth!"));
+                .andExpect(content().string(HEALTH_RESPONSE));
     }
 }

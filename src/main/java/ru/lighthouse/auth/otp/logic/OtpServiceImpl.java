@@ -1,8 +1,8 @@
-package ru.lighthouse.auth.otp;
+package ru.lighthouse.auth.otp.logic;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.lighthouse.auth.sms.SMSMessageService;
 
@@ -11,39 +11,19 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
-
+    private final OtpConfig config;
     private final SMSMessageService smsMessageService;
     private final OtpRepository otpRepository;
-
-    public OtpServiceImpl(SMSMessageService smsMessageService, OtpRepository otpRepository) {
-        this.smsMessageService = smsMessageService;
-        this.otpRepository = otpRepository;
-    }
-
-    @Value("${otp.prolongation.seconds}")
-    private int prolongationSeconds;
-
-    @Value("${sms.message.pattern}")
-    private String smsLoginPattern;
-
-    @Value("${otp.default.password.enabled}")
-    private boolean defaultPasswordEnabled;
-
-    @Value("${otp.default.password.value}")
-    private String defaultPassword;
-
-    @Value("${otp.next-otp.timeout}")
-    private int nextOtpTimeout;
 
     @Override
     public void createAndSendOtp(String phoneNumber) {
         String password = generatePassword();
-        Date prolongationOtp = DateUtils.addSeconds(new Date(), prolongationSeconds);
+        Date prolongationOtp = DateUtils.addSeconds(new Date(), config.getProlongationSeconds());
         Otp otp = new Otp(phoneNumber + password, prolongationOtp);
         otpRepository.save(otp);
         smsMessageService.sendSmsImmediately(phoneNumber, createMessage(password), 0);
@@ -72,17 +52,17 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public List<Otp> getAll() {
-        return otpRepository.findAll();
+    public String getOtpUri() {
+        return config.getUri();
     }
 
     private String createMessage(String password) {
-        ByteBuffer buffer = StandardCharsets.UTF_8.encode(smsLoginPattern);
+        ByteBuffer buffer = StandardCharsets.UTF_8.encode(config.getSmsLoginPattern());
         String utf8EncodedString = StandardCharsets.UTF_8.decode(buffer).toString();
         return String.format(utf8EncodedString, password);
     }
 
     private String generatePassword() {
-        return defaultPasswordEnabled ? defaultPassword : String.valueOf(RandomUtils.nextInt(1000, 10000));
+        return config.isDefaultPasswordEnabled() ? config.getDefaultPassword() : String.valueOf(RandomUtils.nextInt(1000, 10000));
     }
 }

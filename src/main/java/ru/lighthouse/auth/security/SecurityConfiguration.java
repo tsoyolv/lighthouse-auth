@@ -7,16 +7,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
-import ru.lighthouse.auth.otp.OtpService;
+import ru.lighthouse.auth.otp.logic.OtpService;
 
 import javax.annotation.Resource;
 
-import static ru.lighthouse.auth.Uri.OTP_URI;
-import static ru.lighthouse.auth.Uri.OTP_VIEW_URI;
-import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
+import static ru.lighthouse.auth.App.HEALTH_URI;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -39,13 +36,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                .sessionManagement().disable()
                 .addFilter(authenticationFilterObject())
                 .exceptionHandling().authenticationEntryPoint(failedAuthenticationEntryPointObject())
                 .and()
                 .authorizeRequests()
-                .antMatchers(OTP_URI, jwtService.getAuthUri(), TEST_SERVICE_URI, OTP_VIEW_URI).permitAll()
+                .antMatchers(HEALTH_URI, otpService.getOtpUri(), jwtService.getAuthUri()).permitAll()
                 .anyRequest().authenticated();
     }
 

@@ -53,6 +53,7 @@ sms:
     pattern: "Ваш пароль для регистрации в LightHouse: %s."
 
 otp:
+  uri: /otp
   prolongation:
     seconds: 300
   next-otp:

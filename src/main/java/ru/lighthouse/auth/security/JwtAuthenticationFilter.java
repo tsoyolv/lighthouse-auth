@@ -16,7 +16,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
@@ -30,11 +29,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtService.getAuthUri(), HttpMethod.POST.name()));
     }
 
+    public interface RequestParams {
+        String OTP = "otp";
+        String PHONE_NUMBER = "phoneNumber";
+        String ROLE = "role";
+    }
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            String phoneNumber = obtainRequestParameter(request, "phoneNumber");
-            String otp = obtainRequestParameter(request, "otp");
+            String phoneNumber = obtainRequestParameter(request, RequestParams.PHONE_NUMBER);
+            String otp = obtainRequestParameter(request, RequestParams.OTP);
             List<GrantedAuthority> authorities = obtainAuthorities(request);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp, authorities);
             return authManager.authenticate(authToken);
@@ -46,13 +51,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) {
-        List<String> authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        String jwtToken = jwtService.createJWTToken(auth.getName(), authorities, auth.getDetails());
+        String jwtToken = jwtService.createJWTToken(auth.getName(), auth.getAuthorities(), auth.getDetails());
         response.addHeader(jwtService.getHeader(), jwtToken);
     }
 
     private List<GrantedAuthority> obtainAuthorities(HttpServletRequest request) {
-        String role = obtainRequestParameter(request, "role");
+        String role = obtainRequestParameter(request, RequestParams.ROLE);
         if (StringUtils.isEmpty(role)) {
             return createAuthorityList(DefaultAuthority.ROLE_IOS.name());
         }

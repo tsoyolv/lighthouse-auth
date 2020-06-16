@@ -11,10 +11,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import ru.lighthouse.auth.integration.AuthorityDto;
+import ru.lighthouse.auth.integration.dto.AuthorityDto;
 import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
-import ru.lighthouse.auth.integration.UserDto;
-import ru.lighthouse.auth.otp.OtpService;
+import ru.lighthouse.auth.integration.dto.UserDto;
+import ru.lighthouse.auth.otp.logic.OtpService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,14 +36,22 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
     private final OtpService otpService;
     private final IntegrationServiceAdapter integrationServiceAdapter;
 
+    public interface ExceptionMessage {
+        String NO_OTP = "NO_OTP";
+        String SMS_CODE_INVALID = "SMS_CODE_INVALID";
+        String USER_CREATION_FAILED = "User creation failed";
+        String DISABLED = "DISABLED";
+        String LOCKED = "LOCKED";
+    }
+
     @Override
     protected UserDetails retrieveUser(String phoneNumber, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         if (authentication.getCredentials() == null || StringUtils.isEmpty(phoneNumber)) {
-            throw new UsernameNotFoundException("NO_OTP");
+            throw new UsernameNotFoundException(ExceptionMessage.NO_OTP);
         }
-        String otp = (String) authentication.getCredentials();
+        String otp = String.valueOf(authentication.getCredentials());
         if (otpService.isOtpNotValid(phoneNumber, otp)) {
-            throw new InvalidOtpAuthenticationException("SMS_CODE_INVALID");
+            throw new InvalidOtpAuthenticationException(ExceptionMessage.SMS_CODE_INVALID);
         }
         try {
             final Collection<GrantedAuthority> authorities = authentication.getAuthorities();
@@ -51,40 +59,45 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
             setAuthenticationDetails(authentication, user);
             return convertIntegrationDtoToUser(user, otp);
         } catch (Exception e) {
-            throw new UsernameNotFoundException("User creation failed");
+            throw new UsernameNotFoundException(ExceptionMessage.USER_CREATION_FAILED);
         }
     }
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         if (userDetails.isEnabled() == Boolean.FALSE) {
-            throw new UsernameNotFoundException("DISABLED");
+            throw new UsernameNotFoundException(ExceptionMessage.DISABLED);
         }
         if (userDetails.isAccountNonLocked() == Boolean.FALSE) {
-            throw new UsernameNotFoundException("LOCKED");
+            throw new UsernameNotFoundException(ExceptionMessage.LOCKED);
         }
     }
 
     private void setAuthenticationDetails(UsernamePasswordAuthenticationToken authentication, UserDto user) {
-        LinkedHashMap<String, Object> details = jwtService.createDetails(user.getId(), user.getBirthDate(), user.getFirstName(), user.getSecondName(), user.getLastName());
+        LinkedHashMap<String, Object> details = new LinkedHashMap<>();
+        details.put(jwtService.getClaimDetailsUserId(), user.getId());
+        details.put(jwtService.getClaimDetailsUserBirthDate(), user.getBirthDate());
+        details.put(jwtService.getClaimDetailsUserFirstName(), user.getFirstName());
+        details.put(jwtService.getClaimDetailsUserSecondName(), user.getSecondName());
+        details.put(jwtService.getClaimDetailsUserLastName(), user.getLastName());
         authentication.setDetails(details);
     }
 
-    private UserDetails convertIntegrationDtoToUser(UserDto authUser, String otp) {
-        final List<String> authorities = authUser.getAuthorities().stream().map(AuthorityDto::getSystemName).collect(Collectors.toList());
-        final List<GrantedAuthority> authorityList = createAuthorityList(authorities.toArray(String[]::new));
-        return new User(authUser.getPhoneNumber(), otp, authUser.getEnabled(), true,
-                true, authUser.getAccountNonLocked(), authorityList);
-    }
-
-    private UserDto getOrCreateUser(String phoneNumber, Collection<GrantedAuthority> authorities) throws ExecutionException, InterruptedException {
-        final Set<AuthorityDto> authorityDtos = authorities.stream()
+    private UserDto getOrCreateUser(String phoneNumber, Collection<GrantedAuthority> grantedAuthorities) throws ExecutionException, InterruptedException {
+        final Set<AuthorityDto> authorityDtos = grantedAuthorities.stream()
                 .map(a -> JwtAuthenticationFilter.DefaultAuthority.valueOf(a.getAuthority()))
                 .map(aDto -> new AuthorityDto(aDto.getDesc(), aDto.name()))
                 .collect(Collectors.toSet());
         UserDto userDto = new UserDto(phoneNumber, authorityDtos);
         FutureTask<UserDto> future = integrationServiceAdapter.getOrCreateUser(userDto);
         return future.get();
+    }
+
+    private UserDetails convertIntegrationDtoToUser(UserDto authUser, String otp) {
+        final List<String> authorities = authUser.getAuthorities().stream().map(AuthorityDto::getSystemName).collect(Collectors.toList());
+        final List<GrantedAuthority> grantedAuthorities = createAuthorityList(authorities.toArray(String[]::new));
+        return new User(authUser.getPhoneNumber(), otp, authUser.getEnabled(), true,
+                true, authUser.getAccountNonLocked(), grantedAuthorities);
     }
 
     public static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {

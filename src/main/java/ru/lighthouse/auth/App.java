@@ -5,18 +5,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static ru.lighthouse.auth.Uri.TEST_SERVICE_URI;
-
 @RestController
 @SpringBootApplication
 public class App {
+    public static final String HEALTH_URI = "/health-check";
+    public static final String HEALTH_RESPONSE = "I AM AUTH! I AM FINE!";
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
 
-    @GetMapping(TEST_SERVICE_URI)
+    @GetMapping(HEALTH_URI)
     public String helloGradle() {
-        return "Hello auth!";
+        return HEALTH_RESPONSE;
     }
 }

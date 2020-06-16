@@ -4,11 +4,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Getter
@@ -25,41 +27,32 @@ public class JWTService {
     private String secret;
 
     @Value("${security.jwt.claims.authorities.claimName}")
-    private String authoritiesClaimName;
+    private String claimAuthoritiesName;
     @Value("${security.jwt.claims.details.claimName}")
-    private String detailsClaimName;
+    private String claimDetailsName;
 
     @Value("${security.jwt.claims.details.userId}")
-    private String detailsClaimUserIdClaimName;
+    private String claimDetailsUserId;
     @Value("${security.jwt.claims.details.userFirstName}")
-    private String detailsClaimUserFirstName;
+    private String claimDetailsUserFirstName;
     @Value("${security.jwt.claims.details.userSecondName}")
-    private String detailsClaimUserSecondName;
+    private String claimDetailsUserSecondName;
     @Value("${security.jwt.claims.details.userLastName}")
-    private String detailsClaimUserLastName;
+    private String claimDetailsUserLastName;
     @Value("${security.jwt.claims.details.userBirthDate}")
-    private String detailsClaimUserBirthDate;
+    private String claimDetailsUserBirthDate;
 
-    public String createJWTToken(String subject, List<String> authorities, Object details) {
+    public String createJWTToken(String subject, Collection<? extends GrantedAuthority> grantedAuthorities, Object details) {
+        List<String> authorities = grantedAuthorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         long now = System.currentTimeMillis();
         String token = Jwts.builder()
                 .setSubject(subject)
-                .claim(authoritiesClaimName, authorities)
-                .claim(detailsClaimName, details)
+                .claim(claimAuthoritiesName, authorities)
+                .claim(claimDetailsName, details)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + getExpiration() * 1000))  // in milliseconds
                 .signWith(SignatureAlgorithm.HS512, getSecret().getBytes())
                 .compact();
         return getPrefix() + token;
-    }
-
-    public LinkedHashMap<String, Object> createDetails(Long userId, Date birthDate, String firstName, String secondName, String lastName) {
-        LinkedHashMap<String, Object> details = new LinkedHashMap<>();
-        details.put(detailsClaimUserIdClaimName, userId);
-        details.put(detailsClaimUserBirthDate, birthDate);
-        details.put(detailsClaimUserFirstName, firstName);
-        details.put(detailsClaimUserSecondName, secondName);
-        details.put(detailsClaimUserLastName, lastName);
-        return details;
     }
 }

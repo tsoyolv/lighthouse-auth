@@ -17,8 +17,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.lighthouse.auth.App;
-import ru.lighthouse.auth.integration.AuthorityDto;
-import ru.lighthouse.auth.integration.UserDto;
+import ru.lighthouse.auth.integration.dto.AuthorityDto;
+import ru.lighthouse.auth.integration.dto.UserDto;
+import ru.lighthouse.auth.otp.logic.OtpConfig;
 import ru.lighthouse.auth.security.JWTService;
 
 import java.util.Collections;
@@ -35,8 +36,8 @@ import static org.mockserver.model.StringBody.exact;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.lighthouse.auth.Uri.CHECK_AUTH_URI;
-import static ru.lighthouse.auth.Uri.OTP_URI;
+import static ru.lighthouse.auth.rest.controller.CheckAuthController.CHECK_AUTH_URI;
+
 
 @SpringBootTest(classes = App.class)
 @AutoConfigureMockMvc
@@ -48,10 +49,12 @@ public class OtpControllerTest {
     private MockMvc mvc;
     @Autowired
     private JWTService jwtService;
+    @Autowired
+    private OtpConfig otpConfig;
 
     @Test
     public void testAuthorizedUser() throws Exception {
-        mvc.perform(post(OTP_URI).param("phoneNumber", DEFAULT_PHONE)).andExpect(status().isOk());
+        mvc.perform(post(otpConfig.getUri()).param("phoneNumber", DEFAULT_PHONE)).andExpect(status().isOk());
         String token = mvc.perform(post(jwtService.getAuthUri()).param("phoneNumber", DEFAULT_PHONE).param("otp", "1234"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getHeader(jwtService.getHeader());

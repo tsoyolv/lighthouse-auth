@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.integration;
+package ru.lighthouse.auth.integration.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

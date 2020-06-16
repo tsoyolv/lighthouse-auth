@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.otp;
+package ru.lighthouse.auth.otp.logic;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

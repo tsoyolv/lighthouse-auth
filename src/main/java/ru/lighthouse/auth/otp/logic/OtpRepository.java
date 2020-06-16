@@ -1,10 +1,9 @@
-package ru.lighthouse.auth.otp;
+package ru.lighthouse.auth.otp.logic;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
