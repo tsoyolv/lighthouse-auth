@@ -14,14 +14,13 @@ import ru.lighthouse.auth.security.JwtAuthenticationFilter;
 import java.util.concurrent.FutureTask;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static ru.lighthouse.auth.integration.IntegrationProperties.INTEGRATION_ROLE;
-import static ru.lighthouse.auth.integration.IntegrationProperties.USER_URI;
 
 @Service
 @RequiredArgsConstructor
 public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter {
     private final RestTemplate restTemplate = new RestTemplate();
     private final JWTService jwtService;
+    private static final String ROLE_INTEGRATION = "ROLE_INTEGRATION";
 
     @Value("${mobile-service.url}")
     private String mobileUrl;
@@ -29,6 +28,9 @@ public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter 
     private String webUrl;
     @Value("${crm-service.url}")
     private String crmUrl;
+
+    @Value("${integration.uri.user}")
+    private String integrationUserUri;
 
     @Override
     public FutureTask<UserDto> getOrCreateUser(UserDto userDto) {
@@ -47,9 +49,9 @@ public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter 
     private FutureTask<UserDto> createFuture(UserDto userDto, String webUrl) {
         return new FutureTask<>(() -> {
             HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(jwtService.createJWTToken("79779873676", createAuthorityList(INTEGRATION_ROLE), null));
+            headers.setBasicAuth(jwtService.createJWTToken("79779873676", createAuthorityList(ROLE_INTEGRATION), null));
             HttpEntity<UserDto> entity = new HttpEntity<>(userDto, headers);
-            return restTemplate.postForObject(webUrl + USER_URI, entity, UserDto.class);
+            return restTemplate.postForObject(webUrl + integrationUserUri, entity, UserDto.class);
         });
     }
 }

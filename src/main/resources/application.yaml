@@ -63,6 +63,10 @@ otp:
       enabled: true
       value: 1234
 
+integration:
+  uri:
+    user: /integration/user
+
 mobile-service:
   url: http://localhost:8002
   service-id: mobile-service
