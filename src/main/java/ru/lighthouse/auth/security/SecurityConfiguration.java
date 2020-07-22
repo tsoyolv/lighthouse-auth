@@ -2,23 +2,16 @@ package ru.lighthouse.auth.security;
 
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
 import ru.lighthouse.auth.otp.logic.OtpService;
 
 import javax.annotation.Resource;
-
-import java.util.Collections;
-import java.util.List;
 
 import static ru.lighthouse.auth.App.HEALTH_URI;
 
@@ -39,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and()
+                //.cors().and()
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
@@ -62,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authenticationProviderObject());
     }
-
+/*
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
@@ -77,7 +70,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
+    }*/
 
     private JwtAuthenticationFilter authenticationFilterObject() throws Exception {
         return new JwtAuthenticationFilter(authenticationManager(), jwtService);
