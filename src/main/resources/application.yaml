@@ -1,7 +1,7 @@
 server:
   port: 8001
   servlet:
-    context-path: /
+    context-path: /login
 
 spring:
   application:
@@ -69,12 +69,10 @@ integration:
 
 mobile-service:
   url: http://localhost:8002
+  prefix: ""
   service-id: mobile-service
 
-web-service:
-  url: http://localhost:8004
-  service-id: web-service
-
 crm-service:
-  url: http://localhost:8005
-  service-id: web-service
+  url: http://localhost:8004
+  prefix: /crm-backend
+  service-id: crm-service

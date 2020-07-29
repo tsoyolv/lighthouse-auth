@@ -1,25 +1,25 @@
 package ru.lighthouse.auth.security;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-
-import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import java.util.LinkedHashMap;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
 
@@ -40,12 +40,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             String phoneNumber = obtainRequestParameter(request, RequestParams.PHONE_NUMBER);
             String otp = obtainRequestParameter(request, RequestParams.OTP);
-            List<GrantedAuthority> authorities = obtainAuthorities(request);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp, authorities);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(phoneNumber, otp);
+            authToken.setDetails(addUserAgentToDetails(request));
             return authManager.authenticate(authToken);
         } catch (Exception e) {
+            logger.error("Error in authentication: {}", e.getMessage());
             throw new AuthenticationServiceException("Error in authentication", e);
         }
+    }
+
+    private Object addUserAgentToDetails(HttpServletRequest request) {
+        LinkedHashMap<String, Object> details = new LinkedHashMap<>();
+        details.put(HttpHeaders.USER_AGENT, request.getHeader(HttpHeaders.USER_AGENT));
+        return details;
     }
 
     @Override
@@ -55,27 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.addHeader(jwtService.getHeader(), jwtToken);
     }
 
-    private List<GrantedAuthority> obtainAuthorities(HttpServletRequest request) {
-        String role = obtainRequestParameter(request, RequestParams.ROLE);
-        if (StringUtils.isEmpty(role)) {
-            return createAuthorityList(DefaultAuthority.ROLE_IOS.name());
-        }
-        return createAuthorityList(DefaultAuthority.valueOf(role).name());
-    }
-
     private String obtainRequestParameter(HttpServletRequest request, String paramName) {
         return request.getParameter(paramName);
-    }
-
-    public enum DefaultAuthority {
-        ROLE_IOS("IOS пользователь"), ROLE_ANDROID("Андроид пользователь"),
-        ROLE_WEB("WEB пользователь"), ROLE_CRM("CRM пользователь");
-        private String desc;
-        DefaultAuthority(String desc) {
-            this.desc = desc;
-        }
-        public String getDesc() {
-            return desc;
-        }
     }
 }

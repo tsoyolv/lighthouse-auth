@@ -2,6 +2,7 @@ package ru.lighthouse.auth.security;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -11,8 +12,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import ru.lighthouse.auth.integration.dto.AuthorityDto;
 import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
+import ru.lighthouse.auth.integration.dto.AuthorityDto;
 import ru.lighthouse.auth.integration.dto.UserDto;
 import ru.lighthouse.auth.otp.logic.OtpService;
 
@@ -20,10 +21,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
@@ -54,9 +53,8 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
             throw new InvalidOtpAuthenticationException(ExceptionMessage.SMS_CODE_INVALID);
         }
         try {
-            final Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-            final UserDto user = getOrCreateUser(phoneNumber, authorities);
-            setAuthenticationDetails(authentication, user);
+            final UserDto user = getOrCreateUser(phoneNumber, authentication);
+            addAuthenticationDetails(authentication, user);
             return convertIntegrationDtoToUser(user, otp);
         } catch (Exception e) {
             throw new UsernameNotFoundException(ExceptionMessage.USER_CREATION_FAILED);
@@ -73,8 +71,8 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
     }
 
-    private void setAuthenticationDetails(UsernamePasswordAuthenticationToken authentication, UserDto user) {
-        LinkedHashMap<String, Object> details = new LinkedHashMap<>();
+    private void addAuthenticationDetails(UsernamePasswordAuthenticationToken authentication, UserDto user) {
+        LinkedHashMap<String, Object> details = (LinkedHashMap<String, Object>) authentication.getDetails();
         details.put(jwtService.getClaimDetailsUserId(), user.getId());
         details.put(jwtService.getClaimDetailsUserBirthDate(), user.getBirthDate());
         details.put(jwtService.getClaimDetailsUserFirstName(), user.getFirstName());
@@ -83,12 +81,9 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         authentication.setDetails(details);
     }
 
-    private UserDto getOrCreateUser(String phoneNumber, Collection<GrantedAuthority> grantedAuthorities) throws ExecutionException, InterruptedException {
-        final Set<AuthorityDto> authorityDtos = grantedAuthorities.stream()
-                .map(a -> JwtAuthenticationFilter.DefaultAuthority.valueOf(a.getAuthority()))
-                .map(aDto -> new AuthorityDto(aDto.getDesc(), aDto.name()))
-                .collect(Collectors.toSet());
-        UserDto userDto = new UserDto(phoneNumber, authorityDtos);
+    private UserDto getOrCreateUser(String phoneNumber, UsernamePasswordAuthenticationToken auth) throws ExecutionException, InterruptedException {
+        LinkedHashMap<String, Object> details = (LinkedHashMap<String, Object>) auth.getDetails();
+        UserDto userDto = new UserDto(phoneNumber, (String) details.get(HttpHeaders.USER_AGENT));
         FutureTask<UserDto> future = integrationServiceAdapter.getOrCreateUser(userDto);
         return future.get();
     }

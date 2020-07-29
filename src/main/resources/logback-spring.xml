@@ -52,7 +52,7 @@
         <appender-ref ref="SpringRollingFile" />
     </root>
 
-    <logger name="ru.lighthouse" level="warn" additivity="false">
+    <logger name="ru.lighthouse.auth" level="warn" additivity="false">
         <appender-ref ref="AppFileAppender" />
         <appender-ref ref="Console" />
     </logger>
