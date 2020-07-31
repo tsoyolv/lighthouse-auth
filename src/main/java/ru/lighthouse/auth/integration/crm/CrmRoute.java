@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.integration;
+package ru.lighthouse.auth.integration.crm;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

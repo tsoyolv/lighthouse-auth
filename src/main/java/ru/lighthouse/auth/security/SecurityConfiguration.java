@@ -12,7 +12,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ru.lighthouse.auth.integration.IntegrationServiceAdapter;
+import ru.lighthouse.auth.integration.adapter.UserAdapter;
 import ru.lighthouse.auth.otp.logic.OtpService;
 
 import javax.annotation.Resource;
@@ -33,7 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private OtpService otpService;
     @Resource
-    private IntegrationServiceAdapter integrationServiceAdapter;
+    private UserAdapter userAdapter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -84,7 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private OTPAuthenticationProvider authenticationProviderObject() {
-        return new OTPAuthenticationProvider(jwtService, otpService, integrationServiceAdapter);
+        return new OTPAuthenticationProvider(jwtService, userAdapter);
     }
 
     private AuthenticationEntryPoint failedAuthenticationEntryPointObject() {

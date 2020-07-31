@@ -12,10 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
+    private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("7\\d{10}");
+    private static final Pattern OTP_PATTERN = Pattern.compile("\\d{4}");
+
     private final OtpConfig config;
     private final SMSMessageService smsMessageService;
     private final OtpRepository otpRepository;
@@ -30,9 +34,22 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
+    public boolean isValidPhoneNumber(String phoneNumber) {
+        return PHONE_NUMBER_PATTERN.matcher(phoneNumber).matches();
+    }
+
+    @Override
+    public boolean isNotValidPhoneNumber(String phoneNumber) {
+        return !isValidPhoneNumber(phoneNumber);
+    }
+
+    @Override
     @Transactional
-    public boolean isOtpValid(String phoneNumber, String password) {
-        String phoneNumberOtp = phoneNumber + password;
+    public boolean isOtpValid(String phoneNumber, String otpStr) {
+        if (!isValidPhoneNumber(phoneNumber) || !isOtp(otpStr)) {
+            return false;
+        }
+        String phoneNumberOtp = phoneNumber + otpStr;
         Optional<Otp> otpOptional = otpRepository.findAllByPhoneNumberOtp(phoneNumberOtp).max(Comparator.comparingLong(Otp::getId));
         if (otpOptional.isPresent()) {
             Otp otp = otpOptional.get();
@@ -54,6 +71,10 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public String getOtpUri() {
         return config.getUri();
+    }
+
+    private boolean isOtp(String otp) {
+        return OTP_PATTERN.matcher(otp).matches();
     }
 
     private String createMessage(String password) {

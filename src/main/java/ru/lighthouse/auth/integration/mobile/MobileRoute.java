@@ -1,4 +1,4 @@
-package ru.lighthouse.auth.integration;
+package ru.lighthouse.auth.integration.mobile;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
