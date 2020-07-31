@@ -1,4 +1,24 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version "${springDMVersion}" apply false
+    id 'org.springframework.boot' version "${springBootVersion}" apply false
+}
+
+repositories {
+    jcenter()
+}
+group = 'ru.lighthouse'
+version = "${lProjectVersion}"
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+
 dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
     runtimeOnly "com.h2database:h2:${h2Version}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok"

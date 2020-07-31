@@ -9,6 +9,7 @@ import org.mockserver.client.MockServerClient;
 import org.mockserver.matchers.MatchType;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -86,7 +87,7 @@ public class OtpControllerTest {
         mockServer.when(
                 request()
                         .withMethod("POST")
-                        .withPath("/integration/user")
+                        .withPath("/crm-backend/integration/user")
                         .withBody(json("{\"id\":null,\"authorities\":null,\"phoneNumber\":\"79779873676\",\"enabled\":true,\"accountNonLocked\":true,\"firstName\":null,\"secondName\":null,\"lastName\":null,\"birthDate\":null}"
                                 , MatchType.ONLY_MATCHING_FIELDS)),
                 exactly(1))

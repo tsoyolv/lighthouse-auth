@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+ENV=${1:-gradle}
+
+function gradle_properties {
+    grep "${1}" ${ENV}.properties|cut -d'=' -f2
+}
+
+PROJ_NAME=lighthouse-auth
+PROJ_VERSION=$(gradle_properties 'lProjectVersion')
+DOCKER_REGISTRY=95.163.180.7:5000
+DOCKER_REGISTRY_LOGIN=registry
+DOCKER_REGISTRY_PASSWORD=CRSUGQ6xv5me5w1s
+
+printf '============================================ ATTENTION! YOU HAVE TO RUN COMMAND FROM ROOT DIRECTORY ==============================================\n\n'
+
+printf '============================================ Project versions: '
+printf ${PROJ_NAME}
+printf ' '
+printf ${PROJ_VERSION}
+printf " ============================================\n\n"
+
+printf '============================================ Docker registry: '
+printf ${DOCKER_REGISTRY}
+printf " login: "
+printf ${DOCKER_REGISTRY_LOGIN}
+printf " password: "
+printf ${DOCKER_REGISTRY_PASSWORD}
+printf " ============================================\n\n"
+
+docker logout
+docker login ${DOCKER_REGISTRY} --username ${DOCKER_REGISTRY_LOGIN} --password ${DOCKER_REGISTRY_PASSWORD}
+
+./gradlew clean
+./gradlew bootJar
+mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
+
+docker build -f docker/Dockerfile -t ${PROJ_NAME}:${PROJ_VERSION} .
+docker tag ${PROJ_NAME}:${PROJ_VERSION} ${DOCKER_REGISTRY}/${PROJ_NAME}:${PROJ_VERSION}
+docker push ${DOCKER_REGISTRY}/${PROJ_NAME}:${PROJ_VERSION}
+
+docker tag ${PROJ_NAME}:${PROJ_VERSION} ${DOCKER_REGISTRY}/${PROJ_NAME}:latest
+docker push ${DOCKER_REGISTRY}/${PROJ_NAME}:latest
