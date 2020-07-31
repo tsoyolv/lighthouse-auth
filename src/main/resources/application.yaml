@@ -63,16 +63,18 @@ otp:
       enabled: true
       value: 1234
 
-integration:
-  uri:
-    user: /integration/user
-
-mobile-service:
+crm-main-service:
   url: http://localhost:8002
-  prefix: ""
-  service-id: mobile-service
+  service-id: crm-main-service
+  context-path: /crm-backend
+  integration:
+    uri:
+      user: /integration/user
 
-crm-service:
+mobile-main-service:
   url: http://localhost:8004
-  prefix: /crm-backend
-  service-id: crm-service
+  service-id: mobile-main-service
+  context-path: ""
+  integration:
+    uri:
+      user: /integration/user

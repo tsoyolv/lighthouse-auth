@@ -2,7 +2,6 @@ package ru.lighthouse.auth.integration;
 
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -19,22 +18,11 @@ import static org.springframework.security.core.authority.AuthorityUtils.createA
 @Service
 @RequiredArgsConstructor
 public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter {
+    private static final String ROLE_INTEGRATION = "ROLE_INTEGRATION";
     private final RestTemplate restTemplate = new RestTemplate();
     private final JWTService jwtService;
-    private static final String ROLE_INTEGRATION = "ROLE_INTEGRATION";
-
-    @Value("${mobile-service.url}")
-    private String mobileUrl;
-    @Value("${mobile-service.prefix}")
-    private String mobilePrefix;
-
-    @Value("${crm-service.url}")
-    private String crmUrl;
-    @Value("${crm-service.prefix}")
-    private String crmPrefix;
-
-    @Value("${integration.uri.user}")
-    private String integrationUserUri;
+    private final CrmRoute crmRoute;
+    private final MobileRoute mobileRoute;
 
     @Override
     public FutureTask<UserDto> getOrCreateUser(UserDto userDto) {
@@ -42,12 +30,12 @@ public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter 
         UserAgent userAgent = UserAgent.parseUserAgentString(userDto.getUserAgent());
         if (MOBILE == userAgent.getOperatingSystem().getDeviceType()) {
             if (APPLE == userAgent.getOperatingSystem().getManufacturer()) {
-                future = createFuture(userDto, mobileUrl + mobilePrefix);
+                future = createFuture(userDto, mobileRoute.getBaseUrl() + mobileRoute.getUserUri());
             } else {
-                future = createFuture(userDto, mobileUrl + mobilePrefix);
+                future = createFuture(userDto, mobileRoute.getBaseUrl() + mobileRoute.getUserUri());
             }
         } else {
-            future = createFuture(userDto, crmUrl + crmPrefix);
+            future = createFuture(userDto, crmRoute.getBaseUrl() + crmRoute.getUserUri());
         }
         new Thread(future).start();
         return future;
@@ -58,7 +46,7 @@ public class IntegrationServiceAdapterImpl implements IntegrationServiceAdapter 
             HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(jwtService.createJWTToken("admin", createAuthorityList(ROLE_INTEGRATION), null));
             HttpEntity<UserDto> entity = new HttpEntity<>(userDto, headers);
-            return restTemplate.postForObject(webUrl + integrationUserUri, entity, UserDto.class);
+            return restTemplate.postForObject(webUrl, entity, UserDto.class);
         });
     }
 }

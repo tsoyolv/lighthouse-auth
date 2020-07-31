@@ -83,7 +83,7 @@ public class OtpControllerTest {
         UserDto userDto = new UserDto(DEFAULT_PHONE, Collections.singleton(new AuthorityDto("IOS", "ROLE_IOS")));
         userDto.setId(1L);
         final String response = new ObjectMapper().writeValueAsString(userDto);
-        mockServer = startClientAndServer(8004);
+        mockServer = startClientAndServer(8002);
         mockServer.when(
                 request()
                         .withMethod("POST")
