@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class App {
     public static final String HEALTH_URI = "/health-check";
     public static final String HEALTH_RESPONSE = "I AM AUTH! I AM FINE!";
+    public static final String AUTH_CHECK = "Authorized data!";
+    public static final String CHECK_AUTH_URI = "/check-auth";
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
@@ -18,5 +20,10 @@ public class App {
     @GetMapping(HEALTH_URI)
     public String helloGradle() {
         return HEALTH_RESPONSE;
+    }
+
+    @GetMapping(CHECK_AUTH_URI)
+    public String authCheck() {
+        return AUTH_CHECK;
     }
 }

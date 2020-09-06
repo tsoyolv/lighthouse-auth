@@ -58,7 +58,8 @@ public class UserAdapterImpl implements UserAdapter {
         if (nonNull(userType)) {
             return userType;
         }
-        UserAgent userAgent = UserAgent.parseUserAgentString(userAgentStr);
+        return UserType.CRM;
+        /*UserAgent userAgent = UserAgent.parseUserAgentString(userAgentStr);
         if (MOBILE == userAgent.getOperatingSystem().getDeviceType()) {
             if (APPLE == userAgent.getOperatingSystem().getManufacturer()) {
                 userType = UserType.MOBILE;
@@ -68,6 +69,6 @@ public class UserAdapterImpl implements UserAdapter {
         } else {
             userType = UserType.CRM;
         }
-        return userType;
+        return userType;*/
     }
 }

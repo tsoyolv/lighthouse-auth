@@ -9,7 +9,6 @@ import org.mockserver.client.MockServerClient;
 import org.mockserver.matchers.MatchType;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +36,7 @@ import static org.mockserver.model.StringBody.exact;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.lighthouse.auth.rest.controller.CheckAuthController.CHECK_AUTH_URI;
+import static ru.lighthouse.auth.App.CHECK_AUTH_URI;
 
 
 @SpringBootTest(classes = App.class)
