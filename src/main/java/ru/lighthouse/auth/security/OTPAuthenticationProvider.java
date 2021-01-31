@@ -15,6 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import ru.lighthouse.auth.integration.adapter.UserAdapter;
 import ru.lighthouse.auth.integration.dto.AuthorityDto;
 import ru.lighthouse.auth.integration.dto.UserDto;
+import ru.lighthouse.auth.integration.dto.UserType;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -48,9 +49,19 @@ public class OTPAuthenticationProvider extends AbstractUserDetailsAuthentication
         String otp = String.valueOf(authentication.getCredentials());
         LinkedHashMap<String, Object> details = (LinkedHashMap<String, Object>) authentication.getDetails();
         String userAgent = (String) details.get(HttpHeaders.USER_AGENT);
-        UserDto user = userAdapter.retrieveUser(phoneNumber, otp, userAgent, null);
+        UserType userType = retrieveUserType(details);
+        UserDto user = userAdapter.retrieveUser(phoneNumber, otp, userAgent, userType);
         addAuthenticationDetails(authentication, user);
         return convertIntegrationDtoToUser(user, otp);
+    }
+
+    private UserType retrieveUserType(LinkedHashMap<String, Object> details) {
+        UserType userType = null;
+        Object userTypeObj = details.get(JwtAuthenticationFilter.RequestHeaders.USER_AGENT_TYPE);
+        if (userTypeObj != null) {
+            userType = UserType.valueOf((String) userTypeObj);
+        }
+        return userType;
     }
 
     @Override

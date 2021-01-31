@@ -76,7 +76,7 @@ crm-main-service:
 mobile-main-service:
   url: http://localhost:8004
   service-id: mobile-main-service
-  context-path: ""
+  context-path: /mobile
   integration:
     uri:
       user: /integration/user

@@ -39,6 +39,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String PHONE_NUMBER = "phoneNumber";
     }
 
+    public interface RequestHeaders {
+        String USER_AGENT_TYPE = "User-Agent-Type";
+    }
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String phoneNumber = obtainRequestParameter(request, RequestParams.PHONE_NUMBER);
@@ -51,6 +55,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private Object addUserAgentToDetails(HttpServletRequest request) {
         LinkedHashMap<String, Object> details = new LinkedHashMap<>();
         details.put(HttpHeaders.USER_AGENT, request.getHeader(HttpHeaders.USER_AGENT));
+        details.put(RequestHeaders.USER_AGENT_TYPE, request.getHeader(RequestHeaders.USER_AGENT_TYPE));
         return details;
     }
 
